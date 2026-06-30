@@ -217,12 +217,11 @@
             cargarTablaSocios();
         }
 
-async function cargarTablaSocios() {
+        async function cargarTablaSocios() {
             const tbody = document.getElementById('tabla-admin-socios');
             if(!tbody) return;
 
             try {
-                // Solicitamos los socios ordenados por su fecha de ingreso
                 const { data, error } = await clienteSupabase.from('socios').select('*').order('fecha_ingreso', { ascending: false });
                 
                 if (error) { 
@@ -239,7 +238,6 @@ async function cargarTablaSocios() {
 
                 tbody.innerHTML = '';
                 listaSociosMemoria.forEach((socio, index) => {
-                    // Mapeo seguro de estados e insignias visuales
                     let claseEstado = 'activo';
                     if (socio.estado_socio === 'Inactivo') claseEstado = 'inactivo';
                     if (socio.estado_socio === 'Pendiente') claseEstado = 'pendiente';
@@ -248,23 +246,24 @@ async function cargarTablaSocios() {
                     const em = socio.correo_electronico ? '✉️ ' + socio.correo_electronico : 'Sin datos';
                     const cn = socio.numero_cn ? socio.numero_cn : '<span style="color:#aaa; font-style:italic;">No asignado</span>';
                     
-                    // CLAVE: Envolver socio.id entre comillas simples '${socio.id}' para que el UUID no rompa el navegador
-                    tbody.innerHTML += '<tr>' +
-                        '<td><strong>' + cn + '</strong></td>' +
-                        '<td>' + socio.nombre_completo + '</td>' +
-                        '<td style="font-size: 0.9rem; color: #555;">' + em + '<br>' + tl + '</td>' +
-                        '<td><span class="etiqueta ' + claseEstado + '">' + (socio.estado_socio || 'Pendiente') + '</span></td>' +
-                        '<td>' +
-                            '<button class="btn-accion btn-ficha" onclick="generarFichaSocio(' + index + ')">Ficha de Socio</button>' +
-                            '<button class="btn-accion btn-editar" onclick="prepararEdicionSocio(' + index + ')">Editar</button>' +
-                            '<button class="btn-accion btn-eliminar" onclick="eliminarSocio(\'' + socio.id + '\')">Eliminar</button>' +
-                        '</td>' +
-                    '</tr>';
+                    // CORRECCIÓN DE SINTAXIS ACÁ: Usamos comillas de plantilla para inyectar de forma segura el index y el id sin romper las comillas simples de HTML
+                    tbody.innerHTML += `<tr>
+                        <td><strong>${cn}</strong></td>
+                        <td>${socio.nombre_completo}</td>
+                        <td style="font-size: 0.9rem; color: #555;">${em}<br>${tl}</td>
+                        <td><span class="etiqueta ${claseEstado}">${socio.estado_socio || 'Pendiente'}</span></td>
+                        <td>
+                            <button class="btn-accion btn-ficha" onclick="generarFichaSocio(${index})">Ficha de Socio</button>
+                            <button class="btn-accion btn-editar" onclick="prepararEdicionSocio(${index})">Editar</button>
+                            <button class="btn-accion btn-eliminar" onclick="window.eliminarSocio('${socio.id}', '${socio.nombre_completo}')">Eliminar</button>
+                        </td>
+                    </tr>`;
                 });
             } catch (err) {
                 tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error interno: ' + err.message + '</td></tr>';
             }
         }
+
         window.generarFichaSocio = function(index) {
             const socio = listaSociosMemoria[index];
             if (!socio) return;
@@ -333,9 +332,8 @@ async function cargarTablaSocios() {
             const socio = listaSociosMemoria[index];
             if (!socio) return;
 
-            idSocioEnEdicion = socio.id; // Almacenamos el UUID correspondiente a auth.users
+            idSocioEnEdicion = socio.id; 
             
-            // Habilitamos los campos para permitir su edición
             document.querySelectorAll('#form-socio input, #form-socio select').forEach(el => el.disabled = false);
 
             document.getElementById('numero_cn').value = socio.numero_cn || '';
@@ -359,7 +357,6 @@ async function cargarTablaSocios() {
             idSocioEnEdicion = null;
             document.getElementById('form-socio').reset();
 
-            // Deshabilitamos los campos de nuevo para proteger la consistencia de datos
             document.querySelectorAll('#form-socio input, #form-socio select').forEach(el => el.disabled = true);
 
             document.getElementById('titulo-formulario-socio').textContent = "Gestionar Datos de Socio Oficial";
@@ -387,7 +384,6 @@ async function cargarTablaSocios() {
                 estado_socio: document.getElementById('estado_socio').value
             };
 
-            // Ejecutamos exclusivamente una llamada de tipo UPDATE basada en la UUID relacional de auth.users
             const { error } = await clienteSupabase.from('socios').update(datosSocio).eq('id', idSocioEnEdicion);
             
             if (error) {
@@ -400,11 +396,28 @@ async function cargarTablaSocios() {
             btn.disabled = false; 
         });
 
-        window.eliminarSocio = async function(idUUID) {
-            if(!confirm("¿Seguro que deseas eliminar este registro del padrón? (Nota: Esto no borrará sus credenciales de acceso, solo su perfil en el padrón).")) return;
-            await clienteSupabase.from('socios').delete().eq('id', idUUID);
-            if (idSocioEnEdicion === idUUID) cancelarEdicionSocio();
-            await cargarTablaSocios();
+        // 🛠️ FUNCIÓN ELIMINAR SOCIO GLOBAL CORREGIDA CON PREGUNTA DE SEGURIDAD EXPLICITA
+        window.eliminarSocio = async function(idUUID, nombreSocio) {
+            if(!idUUID) return;
+
+            // Pregunta de seguridad personalizada con el nombre del socio
+            const seguro = confirm(`⚠️ ATENCIÓN: ¿Estás completamente seguro de que deseas eliminar a "${nombreSocio}" del padrón oficial?\n\nNota: Esta acción borrará permanentemente sus datos de filiación en la tabla de socios.`);
+            
+            if (!seguro) return;
+
+            try {
+                const { error } = await clienteSupabase.from('socios').delete().eq('id', idUUID);
+                
+                if (error) {
+                    alert("Error al eliminar al socio: " + error.message);
+                } else {
+                    alert(`El socio "${nombreSocio}" fue removido exitosamente del sistema.`);
+                    if (idSocioEnEdicion === idUUID) cancelarEdicionSocio();
+                    await cargarTablaSocios();
+                }
+            } catch (err) {
+                alert("Error de conexión: " + err.message);
+            }
         };
 
         document.getElementById('form-manual').addEventListener('submit', async function(e) {
