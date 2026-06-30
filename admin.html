@@ -278,9 +278,9 @@
                 .filter(c => c !== null);
 
             let disponibles = [];
-            const RANGO_MAXIMO = 100; // Puedes cambiar este número si necesitas expandir el límite en el futuro
+            const RANGO_MAXIMO = 120; // Puedes cambiar este número si necesitas expandir el límite en el futuro
 
-            // Evaluamos el rango del 001 al 100
+            // Evaluamos el rango del 001 al 120
             for (let i = 1; i <= RANGO_MAXIMO; i++) {
                 // Formatea el número agregando ceros a la izquierda (Ej: 1 -> "001", 11 -> "011")
                 const numeroConCeros = String(i).padStart(3, '0');
