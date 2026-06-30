@@ -10,6 +10,8 @@
             --color-principal: #2E7D32; 
             --color-secundario: #F5F5F5;
             --color-texto: #333333;
+            --color-evento: #E2F0D9;
+            --color-anuncio: #FFF2CC;
         }
         
         body {
@@ -48,7 +50,74 @@
         .grid-nosotros { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .tarjeta { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        /* 🖼️ NUEVO DISEÑO DE CARRUSEL HORIZONTAL FIJO (PC Y MÓVIL) */
+        /* 🔔 NUEVA SECCIÓN DE NOTICIAS Y EVENTOS */
+        .grid-noticias {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .tarjeta-noticia {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .tarjeta-noticia:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .noticia-tag {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            width: fit-content;
+        }
+
+        /* Colores dinámicos para los tipos de novedades */
+        .tag-evento { background-color: #2E7D32; color: white; }
+        .tag-comunicado { background-color: #FF9800; color: white; }
+
+        .noticia-cuerpo {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .noticia-cuerpo h3 {
+            margin: 0 0 10px 0;
+            color: #1b5e20;
+            font-size: 1.25rem;
+        }
+
+        .noticia-fecha {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .noticia-cuerpo p {
+            margin: 0;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        /* 🖼️ DISEÑO DE CARRUSEL HORIZONTAL FIJO (PC Y MÓVIL) */
         .contenedor-carrusel-maestro {
             position: relative;
             max-width: 1200px;
@@ -58,24 +127,22 @@
         }
 
         .grid-galeria {
-            display: flex !important;       /* Forzamos línea horizontal */
+            display: flex !important;       
             flex-direction: row;
-            overflow-x: auto;               /* Permite scroll con el dedo en celular */
-            scroll-behavior: smooth;        /* Desplazamiento suave al hacer click */
+            overflow-x: auto;               
+            scroll-behavior: smooth;        
             scroll-snap-type: x mandatory;
             gap: 20px;
             width: 100%;
             padding: 10px 5px;
         }
 
-        /* Ocultar barra de scroll interna */
         .grid-galeria::-webkit-scrollbar {
             display: none;
         }
 
         .contenedor-foto {
             position: relative;
-            /* Cálculo exacto: (100% de la pantalla - 60px de espacios entre las 4 fotos) dividido entre 4 */
             flex: 0 0 calc((100% - 60px) / 4); 
             height: 380px; 
             border-radius: 16px;
@@ -84,7 +151,6 @@
             border: 1px solid #e2e8f0;
             background-color: #ffffff; 
             scroll-snap-align: start;
-            transition: transform 0.3s ease;
         }
 
         .contenedor-foto img {
@@ -95,7 +161,6 @@
             display: block;
         }
 
-        /* BOTONES / FLECHAS DE NAVEGACIÓN (CLICK PC) */
         .btn-flecha {
             position: absolute;
             top: 50%;
@@ -133,18 +198,9 @@
         @media (max-width: 768px) {
             nav { flex-direction: column; gap: 15px; text-align: center; }
             .enlaces { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-            .grid-nosotros { grid-template-columns: 1fr; }
-
-            /* En móviles se muestran fotos un poco más grandes para scrollear cómodamente con el dedo */
-            .contenedor-foto {
-                flex: 0 0 280px; 
-                height: 350px;
-            }
-
-            /* Ocultamos las flechas en móviles ya que se usa el dedo de forma nativa */
+            .grid-nosotros, .grid-noticias { grid-template-columns: 1fr; }
+            .contenedor-foto { flex: 0 0 280px; height: 350px; }
             .btn-flecha { display: none; }
-            .flecha-izq { display: none; }
-            .flecha-der { display: none; }
         }
     </style>
 </head>
@@ -155,6 +211,7 @@
             <div class="logo">GCO</div>
             <div class="enlaces">
                 <a href="#inicio">Inicio</a>
+                <a href="#noticias">Noticias</a>
                 <a href="#nosotros">Quiénes Somos</a>
                 <a href="#galeria">Galería</a>
                 <a href="#contacto">Contacto</a>
@@ -169,6 +226,44 @@
             <p>Dedicados a la cría responsable, el bienestar aviar y la selección deportiva.</p>
             <br>
             <a href="#contacto" style="background: var(--color-principal); color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Únete a nuestra asociación</a>
+        </section>
+
+        <!-- 🔔 NUEVA SECCIÓN VISUAL DE NOTICIAS Y EVENTOS -->
+        <section id="noticias">
+            <h2 style="text-align: center;">Próximos Eventos y Noticias</h2>
+            <p style="text-align: center; color: #666;">Mantente informado sobre las actividades oficiales, concursos y asambleas de la GCO.</p>
+            
+            <div class="grid-noticias">
+                <!-- Tarjeta 1: Evento -->
+                <div class="tarjeta-noticia">
+                    <div class="noticia-cuerpo">
+                        <span class="noticia-tag tag-evento">Próximo Concurso</span>
+                        <h3>Campeonato Ornitológico GCO 2026</h3>
+                        <div class="noticia-fecha">📅 15 de Noviembre, 2026 | 📍 Sede Central Lima</div>
+                        <p>Prepara tus mejores ejemplares de postura, color y canto. Pronto abriremos el proceso de inscripción y recepción de aves para el concurso del año.</p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2: Comunicado -->
+                <div class="tarjeta-noticia">
+                    <div class="noticia-cuerpo">
+                        <span class="noticia-tag tag-comunicado">Convocatoria Anillos</span>
+                        <h3>Cierre del Pedido Oficial de Anillos</h3>
+                        <div class="noticia-fecha">📅 Fecha Límite: 31 de Agosto, 2026</div>
+                        <p>Atención socios: se recuerda que el último bloque de solicitud para anillos oficiales federados cierra a fin de mes. Realiza tu orden desde el panel privado de criador.</p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3: Evento -->
+                <div class="tarjeta-noticia">
+                    <div class="noticia-cuerpo">
+                        <span class="noticia-tag tag-evento">Capacitación</span>
+                        <h3>Charla Técnica: Nutrición y Preparación para la Cría</h3>
+                        <div class="noticia-fecha">📅 Sábado 12 de Septiembre, 2026 | 💻 Vía Zoom</div>
+                        <p>Aprende de jueces expertos sobre el manejo alimentario óptimo pre-reproducción. El enlace de ingreso se habilitará en tu panel "Mi Aviario".</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section id="nosotros">
@@ -193,7 +288,6 @@
             <h2 style="text-align: center;">Galería de Nuestros Socios</h2>
             <p style="text-align: center;">Una muestra en tiempo real del trabajo en nuestros aviarios: desde ejemplares destacados hasta infraestructura deportiva.</p>
             
-            <!-- CONTENEDOR MAESTRO QUE ENVUELVE LAS FLECHAS Y LA GALERÍA -->
             <div class="contenedor-carrusel-maestro">
                 <button class="btn-flecha flecha-izq" onclick="scrollearGaleria(-1)">❮</button>
                 
@@ -223,10 +317,10 @@
                 <div class="tarjeta" style="display: flex; flex-direction: column;">
                     <h3>Dónde estamos</h3>
                     <p style="margin-bottom: 5px;"><strong>Sede Principal GCO</strong></p>
-                    <p style="margin-top: 0; color: #555;">📍 Calle Venecia Mz C Lt 9 llanavilla Km 23 Panamericana Sur VES, Lima, Perú.</p>
+                    <p style="margin-top: 0; color: #555;">📍 Av. Principal Los Aviarios 123, Lima, Perú.</p>
                     
                     <div style="width: 100%; height: 250px; background-color: #eee; border-radius: 8px; overflow: hidden; margin-top: 15px; border: 1px solid #e0e0e0;">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d409.84077643752426!2d-76.945984003857!3d-12.24255503720519!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105bb00618ab355%3A0x6234ad14ac937b42!2sAviario%20Rideone%F0%9F%92%8E!5e0!3m2!1ses!2spe!4v1782839670050!5m2!1ses!2spe" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                        <iframe src="https://maps.google.com/maps?q=Lima,%20Peru&t=&z=13&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
             </div>
@@ -242,12 +336,10 @@
     <script>
         const supabaseUrl = 'https://wbgjkkzputlnzpjcullm.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U';
-        const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseUrl === 'https://wbgjkkzputlnzpjcullm.supabase.co' ? supabaseKey : '');
+        const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Función interactiva para las flechas en PC
         window.scrollearGaleria = function(direccion) {
             const galeria = document.getElementById('galeria-dinamica-aves');
-            // Desplaza la anchura de un elemento de la galería aproximadamente
             const anchoDesplazamiento = galeria.clientWidth / 1.1; 
             galeria.scrollBy({
                 left: direccion * anchoDesplazamiento,
