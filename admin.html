@@ -43,6 +43,10 @@
         .btn-guardar:disabled { background-color: #90caf9; cursor: not-allowed; }
         .btn-cancelar { background-color: #757575; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: none; margin-top: 10px; width: 100%; }
         
+        /* 🔍 NUEVO BOTÓN PARA ANILLAS DISPONIBLES */
+        .btn-disponibles { background-color: #673AB7; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: background-color 0.2s; }
+        .btn-disponibles:hover { background-color: #512DA8; }
+
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--color-borde); }
         th { background-color: var(--color-admin); color: white; }
@@ -123,7 +127,10 @@
                 </div>
 
                 <div class="tarjeta">
-                    <h2>Padrón de Socios Existentes</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--color-borde); padding-bottom: 10px;">
+                        <h2 style="margin: 0; border: none; padding: 0;">Padrón de Socios Existentes</h2>
+                        <button class="btn-disponibles" onclick="verCodigosDisponibles()">🔍 Verificar CN Disponibles</button>
+                    </div>
                     <div style="overflow-x: auto;">
                         <table>
                             <thead>
@@ -246,7 +253,6 @@
                     const em = socio.correo_electronico ? '✉️ ' + socio.correo_electronico : 'Sin datos';
                     const cn = socio.numero_cn ? socio.numero_cn : '<span style="color:#aaa; font-style:italic;">No asignado</span>';
                     
-                    // CORRECCIÓN DE SINTAXIS ACÁ: Usamos comillas de plantilla para inyectar de forma segura el index y el id sin romper las comillas simples de HTML
                     tbody.innerHTML += `<tr>
                         <td><strong>${cn}</strong></td>
                         <td>${socio.nombre_completo}</td>
@@ -263,6 +269,38 @@
                 tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error interno: ' + err.message + '</td></tr>';
             }
         }
+
+        // 🧮 LÓGICA DE DETECCIÓN AUTOMÁTICA DE CÓDIGOS CN DISPONIBLES (RANGO 1 AL 100)
+        window.verCodigosDisponibles = function() {
+            // Guardamos todos los códigos que ya están en uso (limpios de espacios y en mayúsculas)
+            const codigosOcupados = listaSociosMemoria
+                .map(s => s.numero_cn ? s.numero_cn.trim().toUpperCase() : null)
+                .filter(c => c !== null);
+
+            let disponibles = [];
+            const RANGO_MAXIMO = 100; // Puedes cambiar este número si necesitas expandir el límite en el futuro
+
+            // Evaluamos el rango del 001 al 100
+            for (let i = 1; i <= RANGO_MAXIMO; i++) {
+                // Formatea el número agregando ceros a la izquierda (Ej: 1 -> "001", 11 -> "011")
+                const numeroConCeros = String(i).padStart(3, '0');
+                const codigoFormateado = `GCO-${numeroConCeros}`;
+
+                // Si no se encuentra en el arreglo de ocupados, está disponible
+                if (!codigosOcupados.includes(codigoFormateado)) {
+                    disponibles.push(codigoFormateado);
+                }
+            }
+
+            // Despliegue de los resultados en una alerta organizada
+            if (disponibles.length === 0) {
+                alert(`⚠️ ¡Atención! Todos los códigos desde GCO-001 hasta GCO-${RANGO_MAXIMO} ya se encuentran ocupados por los socios.`);
+            } else {
+                // Unimos la lista separada por comas y saltos de línea elegantes
+                const mensajeLista = disponibles.join(', ');
+                alert(`📋 CÓDIGOS CN DISPONIBLES (Rango 001 - ${RANGO_MAXIMO}):\n\n${mensajeLista}\n\nTotal libres: ${disponibles.length} anillas.`);
+            }
+        };
 
         window.generarFichaSocio = function(index) {
             const socio = listaSociosMemoria[index];
@@ -396,11 +434,9 @@
             btn.disabled = false; 
         });
 
-        // 🛠️ FUNCIÓN ELIMINAR SOCIO GLOBAL CORREGIDA CON PREGUNTA DE SEGURIDAD EXPLICITA
         window.eliminarSocio = async function(idUUID, nombreSocio) {
             if(!idUUID) return;
 
-            // Pregunta de seguridad personalizada con el nombre del socio
             const seguro = confirm(`⚠️ ATENCIÓN: ¿Estás completamente seguro de que deseas eliminar a "${nombreSocio}" del padrón oficial?\n\nNota: Esta acción borrará permanentemente sus datos de filiación en la tabla de socios.`);
             
             if (!seguro) return;
