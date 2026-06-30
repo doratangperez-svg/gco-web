@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro e Ingreso - GCO</title>
+    <style>
+        :root {
+            --color-gco: #1565C0;
+            --color-fondo: #F5F5F5;
+            --color-texto: #333;
+            --color-borde: #ddd;
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--color-fondo); margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .contenedor-auth { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; }
+        h2 { color: var(--color-gco); text-align: center; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid var(--color-borde); padding-bottom: 10px; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        .form-group label { font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input { padding: 10px; border: 1px solid var(--color-borde); border-radius: 5px; font-size: 1rem; }
+        .btn-auth { background-color: var(--color-gco); color: white; border: none; padding: 12px; border-radius: 5px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.3s; margin-top: 10px; }
+        .btn-auth:hover { background-color: #0d47a1; }
+        .enlaces-alternos { text-align: center; margin-top: 20px; font-size: 0.9rem; }
+        .enlaces-alternos a { color: var(--color-gco); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .enlaces-alternos a:hover { text-decoration: underline; }
+        .info-nota { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; font-size: 0.85rem; color: #b56c00; margin-bottom: 15px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-auth" id="box-registro">
+        <h2>Crear Cuenta de Socio</h2>
+        <div class="info-nota">
+            <strong>Nota oficial GCO:</strong> Una vez registrado, tu cuenta entrará en estado "Pendiente". El administrador validará tus datos antes de permitirte el acceso completo.
+        </div>
+        <form id="form-registro-usuario">
+            <div class="form-group">
+                <label>Nombre Completo *</label>
+                <input type="text" id="reg_nombre" placeholder="Nombres y Apellidos" required>
+            </div>
+            <div class="form-group">
+                <label>Correo Electrónico *</label>
+                <input type="email" id="reg_correo" placeholder="ejemplo@correo.com" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña de Acceso *</label>
+                <input type="password" id="reg_password" placeholder="Mínimo 6 caracteres" required minlength="6">
+            </div>
+            <button type="submit" class="btn-auth" id="btn-registrar">Solicitar Afiliación</button>
+        </form>
+        <div class="enlaces-alternos">
+            ¿Ya tienes cuenta? <a href="login.html">Inicia Sesión</a><br><br>
+            <a onclick="conmutarVista('recuperar')">¿Olvidaste tu contraseña?</a>
+        </div>
+    </div>
+
+    <div class="contenedor-auth" id="box-recuperar" style="display: none;">
+        <h2>Recuperar Contraseña</h2>
+        <p style="font-size: 0.9rem; color: #555; text-align: center; margin-bottom: 20px;">Ingresa el correo electrónico asociado a tu cuenta. Te enviaremos un enlace seguro para restablecer tu clave.</p>
+        <form id="form-recuperar-password">
+            <div class="form-group">
+                <label>Correo Electrónico registrado</label>
+                <input type="email" id="rec_correo" placeholder="ejemplo@correo.com" required>
+            </div>
+            <button type="submit" class="btn-auth" id="btn-recuperar">Enviar Enlace de Recuperación</button>
+        </form>
+        <div class="enlaces-alternos">
+            <a onclick="conmutarVista('registro')">Volver al Formulario de Registro</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://wbgjkkzputlnzpjcullm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U';
+        const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function conmutarVista(vista) {
+            if(vista === 'recuperar') {
+                document.getElementById('box-registro').style.display = 'none';
+                document.getElementById('box-recuperar').style.display = 'block';
+            } else {
+                document.getElementById('box-registro').style.display = 'block';
+                document.getElementById('box-recuperar').style.display = 'none';
+            }
+        }
+
+        // LÓGICA DE REGISTRO AUTÓNOMO
+        document.getElementById('form-registro-usuario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-registrar');
+            const email = document.getElementById('reg_correo').value.trim();
+            const password = document.getElementById('reg_password').value;
+            const nombre = document.getElementById('reg_nombre').value.trim();
+
+            btn.disabled = true;
+            btn.textContent = "Procesando solicitud...";
+
+            // Registramos en auth.users adjuntando el nombre completo en los metadatos
+            const { data, error } = await clienteSupabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: { nombre_completo: nombre }
+                }
+            });
+
+            if (error) {
+                alert("Error al registrarse: " + error.message);
+            } else {
+                alert("¡Registro enviado! Tu perfil está en estado 'Pendiente'. Por favor, comunícate con la administración de GCO para tu habilitación.");
+                document.getElementById('form-registro-usuario').reset();
+                window.location.href = "login.html";
+            }
+            btn.disabled = false;
+            btn.textContent = "Solicitar Afiliación";
+        });
+
+        // LÓGICA DE RECUPERACIÓN (OLVIDÓ SU CONTRASEÑA)
+        document.getElementById('form-recuperar-password').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-recuperar');
+            const email = document.getElementById('rec_correo').value.trim();
+
+            btn.disabled = true;
+            btn.textContent = "Enviando enlace...";
+
+            // Esta función nativa envía un correo automático mediante los servidores de Supabase
+            const { error } = await clienteSupabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/restablecer.html', // Página destino para escribir la nueva clave
+            });
+
+            if (error) {
+                alert("Error al procesar la solicitud: " + error.message);
+            } else {
+                alert("Si el correo coincide con un socio registrado, se ha enviado un enlace de restauración a tu bandeja de entrada.");
+                document.getElementById('form-recuperar-password').reset();
+                conmutarVista('registro');
+            }
+            btn.disabled = false;
+            btn.textContent = "Enviar Enlace de Recuperación";
+        });
+    </script>
+</body>
+</html>

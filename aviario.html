@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Socio - GCO</title>
+    
+    <style>
+        :root { 
+            --color-principal: #2E7D32; 
+            --color-secundario: #F5F5F5; 
+            --color-texto: #333333; 
+            --color-borde: #ddd; 
+        }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--color-secundario); color: var(--color-texto); }
+        header { background-color: var(--color-principal); color: white; padding: 1rem 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .main-layout { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 280px 1fr; gap: 30px; }
+        .sidebar { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: fit-content; }
+        
+        .nav-link { display: block; padding: 12px 15px; color: var(--color-texto); font-weight: 600; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { background-color: #e8f5e9; color: var(--color-principal); }
+
+        .tarjeta { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        /* DISEÑO DE MANUALES PREMIUM */
+        .grid-manuales { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; margin-top: 25px; }
+        .card-manual { background: white; padding: 25px; border-radius: 12px; text-align: center; border: 1px solid #eee; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card-manual:hover { transform: translateY(-8px); border-color: var(--color-principal); box-shadow: 0 12px 20px rgba(0,0,0,0.1); }
+        .btn-descarga { display: inline-block; background: var(--color-principal); color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: 600; margin-top: 15px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: var(--color-principal); color: white; padding: 12px; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        
+        .btn-admin { display: none; background-color: #1565C0; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-right: 15px; }
+        
+        /* ETIQUETAS DE ESTADO */
+        .etiqueta { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; color: white; text-transform: uppercase; }
+        .activo { background-color: #4CAF50; }
+        .inactivo { background-color: #F44336; }
+        .pendiente { background-color: #FF9800; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 1.5rem; font-weight: bold;">GCO - Panel de Socio</div>
+    <div>
+        <a href="admin.html" id="btn-ir-admin" class="btn-admin">⚙️ Volver a Admin</a>
+        <span id="nombre-usuario-display">Cargando...</span>
+        <button id="btn-cerrar-sesion" style="margin-left: 15px; cursor:pointer;">Salir</button>
+    </div>
+</header>
+
+<div class="main-layout">
+    <aside class="sidebar">
+        <ul style="list-style:none; padding:0;">
+            <li><a class="nav-link active" onclick="cambiarModulo(this, 'consultor')">🔍 Consultor de Socios</a></li>
+            <li><a class="nav-link" onclick="cambiarModulo(this, 'manuales')">📚 Biblioteca de Manuales</a></li>
+        </ul>
+    </aside>
+
+    <main>
+        <div id="modulo-consultor" class="modulo-seccion">
+            <div class="tarjeta">
+                <h2>🔍 Consultor de Socios</h2>
+                <input type="text" id="buscador-socios" placeholder="Buscar por nombre o número CN..." onkeyup="filtrarDirectorio()" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
+                <table>
+                    <thead><tr><th>Número CN</th><th>Nombre</th><th>Estado</th></tr></thead>
+                    <tbody id="tabla-socios-body"><tr><td colspan="3">Cargando datos...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="modulo-manuales" class="modulo-seccion" style="display: none;">
+            <div class="tarjeta">
+                <h2>📚 Biblioteca de Manuales</h2>
+                <div id="lista-manuales" class="grid-manuales">Cargando biblioteca...</div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const clienteSupabase = window.supabase.createClient('https://wbgjkkzputlnzpjcullm.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U');
+    const CORREO_ADMIN = "dtangperez77@gmail.com";
+    let directorioSociosMemoria = [];
+
+    window.cambiarModulo = function(el, id) {
+        document.querySelectorAll('.modulo-seccion').forEach(s => s.style.display = 'none');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.getElementById('modulo-' + id).style.display = 'block';
+        el.classList.add('active');
+        if(id === 'manuales') cargarManuales();
+    };
+
+    async function cargarManuales() {
+        const contenedor = document.getElementById('lista-manuales');
+        const { data, error } = await clienteSupabase.storage.from('archivos_gco').list('manuales');
+        if (error || !data || data.length === 0) { contenedor.innerHTML = 'No hay documentos disponibles.'; return; }
+        contenedor.innerHTML = data.map(f => {
+            const { data: url } = clienteSupabase.storage.from('archivos_gco').getPublicUrl('manuales/' + f.name);
+            return `<div class="card-manual">
+                        <span style="font-size:3rem; display:block; margin-bottom:10px;">📄</span>
+                        <h4 style="margin:0;">${f.name.split('_').pop()}</h4>
+                        <a href="${url.publicUrl}" target="_blank" class="btn-descarga">Descargar</a>
+                    </div>`;
+        }).join('');
+    }
+
+    async function init() {
+        // 1. Obtenemos el usuario autenticado nativo
+        const { data: { user }, error: errorAuth } = await clienteSupabase.auth.getUser();
+        
+        if (errorAuth || !user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        try {
+            // 2. SISTEMA DE PROTECCIÓN DE RUTA DE SOCIO: Verificamos el estado en la tabla pública
+            const { data: socio, error: errorSocio } = await clienteSupabase
+                .from('socios')
+                .select('estado_socio, nombre_completo')
+                .eq('id', user.id)
+                .single();
+
+            // Si no existe perfil en la tabla o su estado no es Activo, cerramos la sesión por seguridad
+            if (errorSocio || !socio || socio.estado_socio === 'Pendiente' || socio.estado_socio === 'Inactivo') {
+                const mensaje = (!socio || socio.estado_socio === 'Pendiente') 
+                    ? "Tu cuenta ha sido registrada con éxito, pero se encuentra en espera de la aprobación y asignación de CN por el administrador de GCO."
+                    : "Tu cuenta se encuentra inactiva. Por favor, comunícate con la administración.";
+                
+                alert(mensaje);
+                await clienteSupabase.auth.signOut();
+                window.location.href = "login.html";
+                return;
+            }
+
+            // 3. Si el socio está aprobado/activo, pintamos la interfaz con normalidad
+            document.getElementById('nombre-usuario-display').textContent = 'Socio: ' + (socio.nombre_completo || user.email);
+            
+            // Mostrar botón de admin si es el correo maestro
+            if (user.email.toLowerCase().trim() === CORREO_ADMIN.toLowerCase().trim()) {
+                document.getElementById('btn-ir-admin').style.display = 'inline-block';
+            }
+            
+            // Cargar el directorio general de socios públicos
+            const { data: directorio, error: errorDir } = await clienteSupabase.from('socios').select('*');
+            if (!errorDir && directorio) {
+                directorioSociosMemoria = directorio;
+                renderizarSocios(directorioSociosMemoria);
+            }
+
+        } catch (err) {
+            console.error("Error crítico en pasarela de control:", err);
+            window.location.href = "login.html";
+        }
+    }
+    
+    function renderizarSocios(lista) {
+        document.getElementById('tabla-socios-body').innerHTML = lista.map(s => {
+            let claseEstado = 'activo';
+            if (s.estado_socio === 'Inactivo') claseEstado = 'inactivo';
+            if (s.estado_socio === 'Pendiente') claseEstado = 'pendiente';
+            
+            const numCN = s.numero_cn || '<span style="color:#aaa; font-style:italic;">No asignado</span>';
+            return `<tr>
+                        <td><strong>${numCN}</strong></td>
+                        <td>${s.nombre_completo}</td>
+                        <td><span class="etiqueta ${claseEstado}">${s.estado_socio || 'Pendiente'}</span></td>
+                    </tr>`;
+        }).join('');
+    }
+
+    window.filtrarDirectorio = () => {
+        const txt = document.getElementById('buscador-socios').value.toLowerCase();
+        const filtrado = directorioSociosMemoria.filter(s => 
+            (s.nombre_completo && s.nombre_completo.toLowerCase().includes(txt)) || 
+            (s.numero_cn && s.numero_cn.toLowerCase().includes(txt))
+        );
+        renderizarSocios(filtrado);
+    };
+
+    document.getElementById('btn-cerrar-sesion').addEventListener('click', async () => { 
+        await clienteSupabase.auth.signOut(); 
+        window.location.href = "login.html"; 
+    });
+
+    init();
+</script>
+</body>
+</html>

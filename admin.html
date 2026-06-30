@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - GCO</title>
+    
+    <style>
+        :root {
+            --color-admin: #1565C0; 
+            --color-secundario: #F5F5F5;
+            --color-texto: #333333;
+            --color-borde: #ddd;
+        }
+        
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--color-secundario); color: var(--color-texto); }
+        header { background-color: var(--color-admin); color: white; padding: 1rem 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; }
+        .btn-salir { background-color: #d32f2f; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        .main-layout { max-width: 1400px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 280px 1fr; gap: 30px; }
+        
+        .sidebar { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); height: fit-content;}
+        .sidebar h3 { color: var(--color-admin); border-bottom: 2px solid var(--color-borde); padding-bottom: 10px; }
+        .nav-menu { list-style: none; padding: 0; margin: 0; }
+        .nav-link { display: block; padding: 12px 15px; color: var(--color-texto); text-decoration: none; font-weight: 600; border-radius: 6px; cursor: pointer; margin-bottom: 8px; }
+        .nav-link:hover, .nav-link.active { background-color: #e3f2fd; color: var(--color-admin); border-left: 4px solid var(--color-admin); }
+
+        .btn-cambio-perfil { background-color: #2E7D32; color: white; text-align: center; margin-top: 25px; border: none; transition: background-color 0.3s;}
+        .btn-cambio-perfil:hover { background-color: #1b5e20; color: white; border-left: none;}
+
+        .tarjeta { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px;}
+        .tarjeta h2 { color: var(--color-admin); border-bottom: 2px solid var(--color-borde); padding-bottom: 10px; margin-top: 0; }
+
+        .grid-formulario { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid var(--color-borde); border-radius: 5px; font-size: 1rem; }
+        .form-group input:disabled, .form-group select:disabled { background-color: #f5f5f5; color: #777; cursor: not-allowed; }
+        .form-group input[type="file"] { padding: 8px; background-color: #f9f9f9; cursor: pointer; border: 1px dashed var(--color-admin); }
+        
+        .btn-guardar { background-color: var(--color-admin); color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; transition: background-color 0.3s; }
+        .btn-guardar:disabled { background-color: #90caf9; cursor: not-allowed; }
+        .btn-cancelar { background-color: #757575; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: none; margin-top: 10px; width: 100%; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--color-borde); }
+        th { background-color: var(--color-admin); color: white; }
+        .etiqueta { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; color: white; }
+        .activo { background-color: #4CAF50; }
+        .inactivo { background-color: #F44336; }
+        .pendiente { background-color: #FF9800; }
+        
+        .btn-accion { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold; margin-right: 5px; }
+        .btn-ficha { background-color: #0288D1; color: white; }
+        .btn-ficha:hover { background-color: #01579B; }
+        .btn-editar { background-color: #FFC107; color: #333; }
+        .btn-eliminar { background-color: #F44336; color: white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">GCO - MASTER ADMIN</div>
+        <div>
+            <span id="admin-email" style="margin-right: 15px;">Cargando...</span>
+            <button class="btn-salir" id="btn-cerrar-sesion">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <h3>Panel de Control</h3>
+            <ul class="nav-menu">
+                <li><a class="nav-link active" onclick="cambiarModulo('socios')">👥 Alta de Socios</a></li>
+                <li><a class="nav-link" onclick="cambiarModulo('manuales')">📚 Carga de Manuales</a></li>
+                <li><a class="nav-link" onclick="cambiarModulo('fotos')">📷 Galería de Aves</a></li>
+                
+                <li><a href="aviario.html" class="nav-link btn-cambio-perfil">🦅 Ir a Mi Aviario (Socio)</a></li>
+            </ul>
+        </aside>
+
+        <main class="content-area">
+            
+            <div id="modulo-socios">
+                <div class="tarjeta">
+                    <h2 id="titulo-formulario-socio">Gestionar Datos de Socio Oficial</h2>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">Selecciona un socio del padrón inferior usando el botón "Editar" para completar sus campos obligatorios (Número CN, Dirección, Teléfono o cambiar su Estado).</p>
+                    <form id="form-socio">
+                        <div class="grid-formulario">
+                            <div class="form-group">
+                                <label>Número CN</label>
+                                <input type="text" id="numero_cn" placeholder="Ej: GCO-011" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Nombre Completo *</label>
+                                <input type="text" id="nombre_completo" placeholder="Selecciona un socio abajo" required disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Correo Electrónico *</label>
+                                <input type="email" id="correo_electronico" placeholder="ejemplo@correo.com" required disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono / Celular</label>
+                                <input type="text" id="telefono" placeholder="Ej: 996316087" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Dirección / Ubicación</label>
+                                <input type="text" id="direccion" placeholder="Ciudad o Dirección física" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Estado del Socio *</label>
+                                <select id="estado_socio" required disabled>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-guardar" id="btn-guardar-socio" disabled>Selecciona un Socio para Gestionar</button>
+                        <button type="button" class="btn-cancelar" id="btn-cancelar-socio" onclick="cancelarEdicionSocio()">Cancelar Gestión</button>
+                    </form>
+                </div>
+
+                <div class="tarjeta">
+                    <h2>Padrón de Socios Existentes</h2>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Número CN</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Contacto</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-admin-socios">
+                                <tr><td colspan="5" style="text-align:center;">Cargando datos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modulo-manuales" style="display: none;">
+                <div class="tarjeta">
+                    <h2>📚 Subir Nuevo Reglamento o Manual</h2>
+                    <p style="color: #666; margin-bottom: 20px;">Sube archivos en formato PDF. Estos estarán disponibles en la biblioteca de los socios.</p>
+                    <form id="form-manual">
+                        <div class="grid-formulario">
+                            <div class="form-group">
+                                <label>Archivo PDF *</label>
+                                <input type="file" id="archivo_pdf" accept="application/pdf" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-guardar" id="btn-subir-manual">Subir PDF a la Nube</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="modulo-fotos" style="display: none;">
+                <div class="tarjeta">
+                    <h2>📷 Subir Fotografía de Ejemplar</h2>
+                    <p style="color: #666; margin-bottom: 20px;">Sube imágenes de concursos, voladeras o ejemplares destacados (Formato JPG o PNG).</p>
+                    <form id="form-foto">
+                        <div class="grid-formulario">
+                            <div class="form-group">
+                                <label>Imagen (JPG/PNG) *</label>
+                                <input type="file" id="archivo_foto" accept="image/png, image/jpeg" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-guardar" id="btn-subir-foto">Subir Fotografía a la Galería</button>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://wbgjkkzputlnzpjcullm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U';
+        const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        const CORREO_ADMINISTRADOR = "dtangperez77@gmail.com"; 
+        
+        let idSocioEnEdicion = null;
+        let listaSociosMemoria = [];
+
+        window.cambiarModulo = function(id) {
+            document.getElementById('modulo-socios').style.display = 'none';
+            document.getElementById('modulo-manuales').style.display = 'none';
+            document.getElementById('modulo-fotos').style.display = 'none';
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            
+            document.getElementById('modulo-' + id).style.display = 'block';
+            if(window.event && window.event.target) window.event.target.classList.add('active');
+        };
+
+        async function verificarAdmin() {
+            const { data: { user }, error } = await clienteSupabase.auth.getUser();
+            
+            if (error || !user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            if (user.email !== CORREO_ADMINISTRADOR.toLowerCase().trim()) {
+                alert("Acceso denegado. Esta área es solo para la administración de la GCO.");
+                window.location.href = "aviario.html";
+                return;
+            }
+
+            document.getElementById('admin-email').textContent = `Admin: ${user.email}`;
+            cargarTablaSocios();
+        }
+
+async function cargarTablaSocios() {
+            const tbody = document.getElementById('tabla-admin-socios');
+            if(!tbody) return;
+
+            try {
+                // Solicitamos los socios ordenados por su fecha de ingreso
+                const { data, error } = await clienteSupabase.from('socios').select('*').order('fecha_ingreso', { ascending: false });
+                
+                if (error) { 
+                    tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error de carga: ' + error.message + '</td></tr>'; 
+                    return; 
+                }
+                
+                listaSociosMemoria = data || [];
+                
+                if(listaSociosMemoria.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay socios registrados en el padrón.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                listaSociosMemoria.forEach((socio, index) => {
+                    // Mapeo seguro de estados e insignias visuales
+                    let claseEstado = 'activo';
+                    if (socio.estado_socio === 'Inactivo') claseEstado = 'inactivo';
+                    if (socio.estado_socio === 'Pendiente') claseEstado = 'pendiente';
+
+                    const tl = socio.telefono ? '📞 ' + socio.telefono : '';
+                    const em = socio.correo_electronico ? '✉️ ' + socio.correo_electronico : 'Sin datos';
+                    const cn = socio.numero_cn ? socio.numero_cn : '<span style="color:#aaa; font-style:italic;">No asignado</span>';
+                    
+                    // CLAVE: Envolver socio.id entre comillas simples '${socio.id}' para que el UUID no rompa el navegador
+                    tbody.innerHTML += '<tr>' +
+                        '<td><strong>' + cn + '</strong></td>' +
+                        '<td>' + socio.nombre_completo + '</td>' +
+                        '<td style="font-size: 0.9rem; color: #555;">' + em + '<br>' + tl + '</td>' +
+                        '<td><span class="etiqueta ' + claseEstado + '">' + (socio.estado_socio || 'Pendiente') + '</span></td>' +
+                        '<td>' +
+                            '<button class="btn-accion btn-ficha" onclick="generarFichaSocio(' + index + ')">Ficha de Socio</button>' +
+                            '<button class="btn-accion btn-editar" onclick="prepararEdicionSocio(' + index + ')">Editar</button>' +
+                            '<button class="btn-accion btn-eliminar" onclick="eliminarSocio(\'' + socio.id + '\')">Eliminar</button>' +
+                        '</td>' +
+                    '</tr>';
+                });
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error interno: ' + err.message + '</td></tr>';
+            }
+        }
+        window.generarFichaSocio = function(index) {
+            const socio = listaSociosMemoria[index];
+            if (!socio) return;
+
+            const ventanaImpresion = window.open('', '_blank');
+            if(!ventanaImpresion) {
+                alert("Por favor habilita las ventanas emergentes en tu navegador.");
+                return;
+            }
+
+            const numCN = socio.numero_cn || 'No asignado';
+            const nombre = socio.nombre_completo || '';
+            const correo = socio.correo_electronico || 'No registrado';
+            const telf = socio.telefono || 'No registrado';
+            const dir = socio.direccion || 'No registrada';
+            const est = socio.estado_socio || 'Pendiente';
+            
+            let claseEst = 'activo';
+            if (est === 'Inactivo') claseEst = 'inactivo';
+            if (est === 'Pendiente') claseEst = 'pendiente';
+
+            ventanaImpresion.document.open();
+            ventanaImpresion.document.write(
+                '<!DOCTYPE html>' +
+                '<html><head><title>Ficha de Socio - ' + numCN + '<\/title>' +
+                '<style>' +
+                'body { font-family: "Segoe UI", Arial, sans-serif; color: #333; padding: 40px; margin: 0; }' +
+                '.documento { border: 2px solid #1565C0; border-radius: 8px; padding: 30px; }' +
+                '.encabezado { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1565C0; padding-bottom: 15px; margin-bottom: 30px; }' +
+                '.titulo-asociacion { font-size: 22px; font-weight: bold; color: #1565C0; margin: 0; }' +
+                '.subtitulo { font-size: 11px; color: #666; margin: 3px 0 0 0; text-transform: uppercase; letter-spacing: 1px; }' +
+                '.tipo-documento { background-color: #1565C0; color: white; padding: 8px 15px; font-weight: bold; border-radius: 4px; font-size: 13px; }' +
+                '.info-grid { display: grid; grid-template-columns: 160px 1fr; gap: 18px 10px; font-size: 15px; margin-bottom: 40px; }' +
+                '.label { font-weight: bold; color: #555; }' +
+                '.valor { border-bottom: 1px dotted #ccc; padding-bottom: 3px; }' +
+                '.estado-box { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; color: white; }' +
+                '.activo { background-color: #4CAF50; } .inactivo { background-color: #F44336; } .pendiente { background-color: #FF9800; }' +
+                '.firma-seccion { display: flex; justify-content: space-around; margin-top: 80px; }' +
+                '.linea-firma { width: 220px; border-top: 1px solid #333; text-align: center; font-size: 12px; padding-top: 5px; }' +
+                '.footer-documento { text-align: center; margin-top: 60px; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 15px; }' +
+                '<\/style><\/head><body>' +
+                '<div class="documento">' +
+                '<div class="encabezado"><div><h1 class="titulo-asociacion">GCO<\/h1><p class="subtitulo">Asociación de Criadores Ornitológicos<\/p><\/div>' +
+                '<div class="tipo-documento">FICHA OFICIAL DE SOCIO<\/div><\/div>' +
+                '<div class="info-grid">' +
+                '<div class="label">Número CN:<\/div><div class="valor"><strong>' + numCN + '<\/strong><\/div>' +
+                '<div class="label">Nombre Completo:<\/div><div class="valor">' + nombre + '<\/div>' +
+                '<div class="label">Correo Electrónico:<\/div><div class="valor">' + correo + '<\/div>' +
+                '<div class="label">Teléfono / Celular:<\/div><div class="valor">' + telf + '<\/div>' +
+                '<div class="label">Dirección / Ubicación:<\/div><div class="valor">' + dir + '<\/div>' +
+                '<div class="label">Estado de Afiliación:<\/div><div><span class="estado-box ' + claseEst + '">' + est + '<\/span><\/div>' +
+                '<\/div>' +
+                '<div class="firma-seccion"><div class="linea-firma">Firma del Socio<\/div><div class="linea-firma">Firma Administrador GCO<\/div><\/div>' +
+                '<div class="footer-documento">Documento oficial emitido desde el Panel de Administración GCO el ' + new Date().toLocaleDateString() + '.<\/div>' +
+                '<\/div><\/body><\/html>'
+            );
+            ventanaImpresion.document.close();
+            
+            ventanaImpresion.onload = function() {
+                ventanaImpresion.print();
+                ventanaImpresion.close();
+            };
+        };
+
+        window.prepararEdicionSocio = function(index) {
+            const socio = listaSociosMemoria[index];
+            if (!socio) return;
+
+            idSocioEnEdicion = socio.id; // Almacenamos el UUID correspondiente a auth.users
+            
+            // Habilitamos los campos para permitir su edición
+            document.querySelectorAll('#form-socio input, #form-socio select').forEach(el => el.disabled = false);
+
+            document.getElementById('numero_cn').value = socio.numero_cn || '';
+            document.getElementById('nombre_completo').value = socio.nombre_completo || '';
+            document.getElementById('correo_electronico').value = socio.correo_electronico || '';
+            document.getElementById('telefono').value = socio.telefono || '';
+            document.getElementById('direccion').value = socio.direccion || '';
+            document.getElementById('estado_socio').value = socio.estado_socio || 'Pendiente';
+
+            document.getElementById('titulo-formulario-socio').textContent = "✏️ Validar y Completar Socio Oficial";
+            const btnGuardar = document.getElementById('btn-guardar-socio');
+            btnGuardar.disabled = false;
+            btnGuardar.textContent = "Actualizar Información de Socio";
+            btnGuardar.style.backgroundColor = "#ff9800";
+            document.getElementById('btn-cancelar-socio').style.display = 'block';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.cancelarEdicionSocio = function() {
+            idSocioEnEdicion = null;
+            document.getElementById('form-socio').reset();
+
+            // Deshabilitamos los campos de nuevo para proteger la consistencia de datos
+            document.querySelectorAll('#form-socio input, #form-socio select').forEach(el => el.disabled = true);
+
+            document.getElementById('titulo-formulario-socio').textContent = "Gestionar Datos de Socio Oficial";
+            const btnGuardar = document.getElementById('btn-guardar-socio');
+            btnGuardar.disabled = true;
+            btnGuardar.textContent = "Selecciona un Socio para Gestionar";
+            btnGuardar.style.backgroundColor = "var(--color-admin)";
+            document.getElementById('btn-cancelar-socio').style.display = 'none';
+        };
+
+        document.getElementById('form-socio').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!idSocioEnEdicion) return;
+
+            const btn = document.getElementById('btn-guardar-socio'); 
+            btn.disabled = true; 
+            btn.textContent = "Actualizando padrón...";
+            
+            const datosSocio = {
+                numero_cn: document.getElementById('numero_cn').value || null,
+                nombre_completo: document.getElementById('nombre_completo').value,
+                correo_electronico: document.getElementById('correo_electronico').value,
+                telefono: document.getElementById('telefono').value || null,
+                direccion: document.getElementById('direccion').value || null,
+                estado_socio: document.getElementById('estado_socio').value
+            };
+
+            // Ejecutamos exclusivamente una llamada de tipo UPDATE basada en la UUID relacional de auth.users
+            const { error } = await clienteSupabase.from('socios').update(datosSocio).eq('id', idSocioEnEdicion);
+            
+            if (error) {
+                alert("Error al actualizar la información: " + error.message);
+            } else {
+                cancelarEdicionSocio(); 
+                await cargarTablaSocios(); 
+            }
+            
+            btn.disabled = false; 
+        });
+
+        window.eliminarSocio = async function(idUUID) {
+            if(!confirm("¿Seguro que deseas eliminar este registro del padrón? (Nota: Esto no borrará sus credenciales de acceso, solo su perfil en el padrón).")) return;
+            await clienteSupabase.from('socios').delete().eq('id', idUUID);
+            if (idSocioEnEdicion === idUUID) cancelarEdicionSocio();
+            await cargarTablaSocios();
+        };
+
+        document.getElementById('form-manual').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const archivo = document.getElementById('archivo_pdf').files[0];
+            const btn = document.getElementById('btn-subir-manual');
+            
+            if (!archivo) return alert("Por favor selecciona un archivo.");
+            
+            btn.textContent = "Subiendo archivo, por favor espera...";
+            btn.disabled = true;
+
+            const nombreLimpio = archivo.name.replace(/[^a-zA-Z0-9.]/g, '_'); 
+            const rutaArchivo = 'manuales/' + Date.now() + '_' + nombreLimpio;
+
+            const { data, error } = await clienteSupabase.storage.from('archivos_gco').upload(rutaArchivo, archivo);
+
+            if (error) {
+                alert("Error al subir el manual: " + error.message);
+            } else {
+                alert("¡Manual subido correctamente a la biblioteca de GCO!");
+                document.getElementById('form-manual').reset();
+            }
+            
+            btn.textContent = "Subir PDF a la Nube";
+            btn.disabled = false;
+        });
+
+        document.getElementById('form-foto').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const archivo = document.getElementById('archivo_foto').files[0];
+            const btn = document.getElementById('btn-subir-foto');
+            
+            if (!archivo) return alert("Por favor selecciona una imagen.");
+            
+            btn.textContent = "Subiendo imagen, por favor espera...";
+            btn.disabled = true;
+
+            const nombreLimpio = archivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
+            const rutaArchivo = 'galeria/' + Date.now() + '_' + nombreLimpio;
+
+            const { data, error } = await clienteSupabase.storage.from('archivos_gco').upload(rutaArchivo, archivo);
+
+            if (error) {
+                alert("Error al subir la fotografía: " + error.message);
+            } else {
+                alert("¡Fotografía agregada a la galería con éxito!");
+                document.getElementById('form-foto').reset();
+            }
+            
+            btn.textContent = "Subir Fotografía a la Galería";
+            btn.disabled = false;
+        });
+
+        document.getElementById('btn-cerrar-sesion').addEventListener('click', async function() {
+            await clienteSupabase.auth.signOut(); window.location.href = "login.html";
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            verificarAdmin();
+        });
+    </script>
+</body>
+</html>

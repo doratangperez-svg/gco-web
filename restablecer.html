@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Establecer Nueva Contraseña - GCO</title>
+    <style>
+        body { font-family: sans-serif; background: #F5F5F5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 380px; }
+        h2 { color: #1565C0; text-align: center; margin-top: 0; }
+        input { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 1rem; }
+        button { background: #1565C0; color: white; border: none; padding: 12px; width: 100%; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Nueva Contraseña</h2>
+        <p style="font-size: 0.9rem; color: #555;">Ingresa tu nueva clave secreta de acceso:</p>
+        <form id="form-update">
+            <input type="password" id="nueva_clave" placeholder="Mínimo 6 caracteres" required minlength="6">
+            <button type="submit">Guardar Nueva Contraseña</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://wbgjkkzputlnzpjcullm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.getElementById('form-update').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nuevaClave = document.getElementById('nueva_clave').value;
+            
+            // Actualiza la contraseña en el token activo de recuperación
+            const { error } = await supabase.auth.updateUser({ password: nuevaClave });
+            
+            if (error) {
+                alert("Error: " + error.message);
+            } else {
+                alert("¡Tu contraseña ha sido restablecida con éxito! Ya puedes iniciar sesión.");
+                window.location.href = "login.html";
+            }
+        });
+    </script>
+</body>
+</html>
