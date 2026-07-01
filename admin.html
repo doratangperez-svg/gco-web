@@ -54,6 +54,7 @@
         th { background-color: var(--color-admin); color: white; }
         .etiqueta { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; color: white; }
         .activo { background-color: #4CAF50; }
+        .procesado { background-color: #1565C0; }
         .inactivo { background-color: #F44336; }
         .pendiente { background-color: #FF9800; }
         
@@ -99,6 +100,11 @@
         .modal-cabecera { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--color-borde); padding-bottom: 10px; margin-bottom: 20px; }
         .modal-cabecera h3 { margin: 0; color: var(--color-admin); }
         .btn-cerrar-x { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+
+        /* Estilos de Tabla Mini reutilizados */
+        .tabla-mini { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 5px; }
+        .tabla-mini th { background-color: var(--color-admin); color: white; padding: 10px 6px; text-align: center; font-size: 0.82rem; font-weight: 600; }
+        .tabla-mini td { padding: 12px 6px; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; }
     </style>
 </head>
 <body>
@@ -117,6 +123,7 @@
             <ul class="nav-menu">
                 <li><a class="nav-link active" onclick="cambiarModulo('socios')">👥 Alta de Socios</a></li>
                 <li><a class="nav-link" onclick="cambiarModulo('pagos')">💵 Control de Pagos Global</a></li>
+                <li><a class="nav-link" onclick="cambiarModulo('consolidado-anillas')">💍 Consolidado de Anillas</a></li>
                 <li><a class="nav-link" onclick="cambiarModulo('manuales')">📚 Carga de Manuales</a></li>
                 <li><a class="nav-link" onclick="cambiarModulo('fotos')">📷 Galería de Aves</a></li>
                 
@@ -126,7 +133,6 @@
 
         <main class="content-area">
             
-            <!-- MÓDULO ALTA DE SOCIOS -->
             <div id="modulo-socios">
                 <div class="tarjeta">
                     <h2 id="titulo-formulario-socio">Gestionar Datos de Socio Oficial</h2>
@@ -191,7 +197,6 @@
                 </div>
             </div>
 
-            <!-- MÓDULO DE CONTROL DE PAGOS GLOBAL -->
             <div id="modulo-pagos" style="display: none;">
                 <div class="grid-kpis-pagos">
                     <div class="tarjeta-kpi kpi-recaudado">
@@ -249,19 +254,75 @@
                                     <th>Modalidad</th>
                                     <th>Monto</th>
                                     <th>Detalle</th>
-                                    <th>⚠️ Próximo Vencimiento</th> <!-- 👈 COLUMNA NUEVA INTEGRADA -->
+                                    <th>⚠️ Próximo Vencimiento</th>
                                     <th>Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="tabla-historial-pagos">
-                                <!-- Renderizado dinámico -->
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modulo-consolidado-anillas" style="display: none;">
+                <div class="tarjeta">
+                    <h2>📊 Consolidado General de Pedidos de Anillas</h2>
+                    <p style="color:#666; font-size:0.9rem;">Revisa las cantidades totales acumuladas por cada calibre y aprueba el lote completo para producción.</p>
+
+                    <div style="background-color: #f1f8e9; border: 1px solid #c8e6c9; padding: 15px; border-radius: 8px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div>
+                            <span style="font-weight: bold; color: #2E7D32; display: block; font-size: 1.05rem;">📦 Procesamiento del Lote Actual</span>
+                            <span style="color:#555; font-size: 0.85rem;">Al consolidar, todas las solicitudes "Pendientes" pasarán a estado "Consolidado".</span>
+                        </div>
+                        <button onclick="aceptarLoteComoConsolidado()" style="background-color: #2E7D32; color: white; border: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.95rem; transition: 0.2s;">
+                            ✅ Aceptar Pedido como Consolidado
+                        </button>
+                    </div>
+
+                    <h3 style="color: #2E7D32; border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 35px; margin-bottom: 10px;">📦 Resumen de Producción (Solo Pendientes)</h3>
+                    <table class="tabla-mini">
+                        <thead>
+                            <tr>
+                                <th>Calibre</th>
+                                <th>Cantidad Total Solicitada</th>
+                                <th>Monto Total Estimado ($ USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-anillas-totales-calibre">
+                            <tr><td colspan="3" style="text-align:center; color:#999; padding:15px;">Calculando totales...</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3 style="color: #1565C0; border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 40px; margin-bottom: 15px;">⏳ Detalle de Solicitudes en el Sistema</h3>
+                    <div style="margin-bottom: 15px; display:flex; gap:10px;">
+                        <button class="btn-disponibles" onclick="cambiarFiltroEstadoAnillas('Pendiente')" style="background-color:#757575;">Ver Pendientes</button>
+                        <button class="btn-disponibles" onclick="cambiarFiltroEstadoAnillas('Consolidado')" style="background-color:#1565C0;">Ver Consolidados</button>
+                        <button class="btn-disponibles" onclick="cambiarFiltroEstadoAnillas('Todos')" style="background-color:#333;">Ver Todos</button>
+                    </div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="tabla-mini">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>CN</th>
+                                    <th>Socio</th>
+                                    <th>Calibre</th>
+                                    <th>Rango</th>
+                                    <th>Cant.</th>
+                                    <th>Subtotal</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-anillas-historico-detallado">
+                                <tr><td colspan="8" style="text-align:center; color:#999; padding:15px;">Cargando histórico de pedidos...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- MÓDULO MANUALES -->
             <div id="modulo-manuales" style="display: none;">
                 <div class="tarjeta">
                     <h2>📚 Subir Nuevo Reglamento o Manual</h2>
@@ -277,7 +338,6 @@
                 </div>
             </div>
 
-            <!-- MÓDULO FOTOS -->
             <div id="modulo-fotos" style="display: none;">
                 <div class="tarjeta">
                     <h2>📷 Subir Fotografía de Ejemplar</h2>
@@ -296,7 +356,6 @@
         </main>
     </div>
 
-    <!-- VENTANA MODAL FLOTANTE DE GESTIÓN DE PAGOS INDIVIDUALES -->
     <div id="modal-pagos-usuario" class="capa-modal">
         <div class="ventana-modal">
             <div class="modal-cabecera">
@@ -354,8 +413,8 @@
         let idSocioEnEdicion = null;
         let indicePagoEnEdicion = null; 
         let listaSociosMemoria = [];
+        let filtroEstadoAnillasActual = 'Todos';
         
-        // Data base con fechas de vencimiento precalculadas automáticamente
         let registroPagosMemoria = [
             { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape", vencimiento: "2027-07-01" },
             { fecha: "2026-06-30", socio: "Jose Javier Valero Rojas", modalidad: "Anual", monto: 120, nota: "Yape", vencimiento: "2027-06-30" }
@@ -364,6 +423,7 @@
         window.cambiarModulo = function(id) {
             document.getElementById('modulo-socios').style.display = 'none';
             document.getElementById('modulo-pagos').style.display = 'none'; 
+            document.getElementById('modulo-consolidado-anillas').style.display = 'none'; 
             document.getElementById('modulo-manuales').style.display = 'none';
             document.getElementById('modulo-fotos').style.display = 'none';
             
@@ -379,8 +439,12 @@
             }
 
             if(id === 'pagos') {
-                actualizarResumenPagosUI();
+                actualResumenPagosUI();
                 renderizarTablaPagos(registroPagosMemoria);
+            }
+            if(id === 'consolidado-anillas') {
+                filtroEstadoAnillasActual = 'Todos';
+                cargarConsolidadoAnillas();
             }
         };
 
@@ -404,7 +468,7 @@
                     if (socio.estado_socio === 'Inactivo') claseEstado = 'inactivo';
                     if (socio.estado_socio === 'Pendiente') claseEstado = 'pendiente';
                     const tl = socio.telefono ? '📞 ' + socio.telefono : '';
-                    const em = socio.correo_electronico ? '✉️ ' + socio.correo_electronico : 'Sin datos';
+                    const em = socio.correo_electronico ? '✉ ' + socio.correo_electronico : 'Sin datos';
                     const cn = socio.numero_cn ? socio.numero_cn : '<span>No asignado</span>';
                     
                     tbody.innerHTML += `<tr>
@@ -444,18 +508,16 @@
             document.getElementById('pago_monto').value = (modalidad === 'Mensual') ? 10 : 120;
         };
 
-        // 🧮 FUNCIÓN AUXILIAR: CALCULA LA FECHA DE VENCIMIENTO BASADA EN LA MODALIDAD
         function calcularProximoVencimiento(fechaBase, modalidad) {
-            let fecha = new Date(fechaBase + "T12:00:00"); // Forzar hora intermedia para evitar desfases de zona horaria
+            let fecha = new Date(fechaBase + "T12:00:00"); 
             if (modalidad === "Mensual") {
                 fecha.setMonth(fecha.getMonth() + 1);
             } else if (modalidad === "Anual") {
                 fecha.setFullYear(fecha.getFullYear() + 1);
             }
-            return fecha.toISOString().split('T')[0]; // Devuelve formato YYYY-MM-DD
+            return fecha.toISOString().split('T')[0];
         }
 
-        // SUBMIT UNIFICADO DEL MODAL CON CALCULO AUTOMÁTICO DE RECORDATORIO
         document.getElementById('form-registro-pago').addEventListener('submit', function(e) {
             e.preventDefault();
             const socio = document.getElementById('pago_socio_nombre').value;
@@ -464,7 +526,6 @@
             const monto = parseFloat(document.getElementById('pago_monto').value);
             const nota = document.getElementById('pago_nota').value || 'Ninguna';
 
-            // Ejecuta el cálculo automático
             const fechaVencimiento = calcularProximoVencimiento(fechaManual, mod);
 
             if (indicePagoEnEdicion !== null) {
@@ -475,7 +536,7 @@
                 alert("¡Aporte verificado y próximo vencimiento programado!");
             }
 
-            cerrarModalPago(); actualizarResumenPagosUI(); filtrarHistorialPagosLocal();
+            cerrarModalPago(); actualResumenPagosUI(); filtrarHistorialPagosLocal();
         });
 
         function renderizarTablaPagos(datos) {
@@ -492,7 +553,6 @@
                 const fPagoPartes = p.fecha.split('-');
                 const fechaPagoUI = fPagoPartes.length === 3 ? `${parseInt(fPagoPartes[2])}/${parseInt(fPagoPartes[1])}/${fPagoPartes[0]}` : p.fecha;
 
-                // Formatear la fecha de vencimiento calculada para la UI
                 const fVencPartes = p.vencimiento ? p.vencimiento.split('-') : [];
                 const fechaVencUI = fVencPartes.length === 3 ? `${parseInt(fVencPartes[2])}/${parseInt(fVencPartes[1])}/${fVencPartes[0]}` : 'No definido';
 
@@ -502,7 +562,6 @@
                     <td><span class="etiqueta activo">${p.modalidad}</span></td>
                     <td><strong>S/. ${p.monto}</strong></td>
                     <td style="font-size:0.9rem; color:#555;">${p.nota}</td>
-                    <!-- 🕒 VISUALIZACIÓN DE PRÓXIMO PAGO -->
                     <td><span style="color:#d32f2f; font-weight:bold; background-color:#ffebee; padding:4px 8px; border-radius:4px; font-size:0.9rem;">📅 ${fechaVencUI}</span></td>
                     <td>
                         <button class="btn-accion btn-editar" onclick="prepararEdicionPago(${p.originalIndex})">Editar</button>
@@ -528,7 +587,7 @@
 
         window.eliminarPagoIndividual = function(index, nombreSocio) {
             if (!confirm(`¿Eliminar pago de ${nombreSocio}?`)) return;
-            registroPagosMemoria.splice(index, 1); actualizarResumenPagosUI(); filtrarHistorialPagosLocal();
+            registroPagosMemoria.splice(index, 1); actualResumenPagosUI(); filtrarHistorialPagosLocal();
         };
 
         window.filtrarHistorialPagosLocal = function() {
@@ -541,7 +600,7 @@
             renderizarTablaPagos(filtrados);
         };
 
-        function actualizarResumenPagosUI() {
+        function actualResumenPagosUI() {
             const activos = listaSociosMemoria.filter(s => s.estado_socio === 'Activo').length;
             const pendientes = listaSociosMemoria.filter(s => s.estado_socio === 'Pendiente').length;
             const totalCaja = registroPagosMemoria.reduce((acc, p) => acc + parseFloat(p.monto), 0);
@@ -559,7 +618,6 @@
             });
 
             if(datosAExportar.length === 0) return alert("No hay datos.");
-            // Agregado la columna Próximo Vencimiento también al reporte descargable en Excel
             let excelTemplate = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"></head><body><table border="1"><tr style="background-color:#1565C0; color:white;"><th>Fecha Pago</th><th>Socio</th><th>Modalidad</th><th>Monto</th><th>Detalle</th><th>Proximo Vencimiento</th></tr>`;
             datosAExportar.forEach(p => { excelTemplate += `<tr><td>${p.fecha}</td><td>${p.socio}</td><td>${p.modalidad}</td><td>S/. ${p.monto}</td><td>${p.nota}</td><td>${p.vencimiento || 'No programado'}</td></tr>`; });
             excelTemplate += `</table></body></html>`;
@@ -622,6 +680,105 @@
             const { error } = await clienteSupabase.storage.from('archivos_gco').upload('galeria/' + Date.now() + '_' + archivo.name.replace(/[^a-zA-Z0-9.]/g, '_'), archivo);
             if (error) alert("Error: " + error.message); else { alert("¡Imagen subida!"); document.getElementById('form-foto').reset(); }
         });
+
+        // 🔍 LÓGICA DEL CONSOLIDADO DE ANILLAS DESDE LA TABLA 'SOLICITUDES_ANILLAS'
+        async function cargarConsolidadoAnillas() {
+            try {
+                let query = clienteSupabase.from('solicitudes_anillas').select('*');
+                
+                if (filtroEstadoAnillasActual !== 'Todos') {
+                    query = query.eq('estado', filtroEstadoAnillasActual);
+                }
+                
+                const { data: pedidos, error } = await query.order('id', { ascending: false });
+                if (error) throw error;
+
+                renderizarResumenMatrizPorCalibre(pedidos);
+                renderizarHistoricoDetalladoAdmin(pedidos);
+            } catch (err) {
+                console.error("Error al cargar pedidos:", err.message);
+            }
+        }
+
+        function renderizarResumenMatrizPorCalibre(pedidos) {
+            const tbodyResumen = document.getElementById('tbody-anillas-totales-calibre');
+            if (!tbodyResumen) return;
+
+            const pendientes = pedidos ? pedidos.filter(p => p.estado === 'Pendiente') : [];
+
+            if (pendientes.length === 0) {
+                tbodyResumen.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#777; padding:20px;">No hay solicitudes "Pendientes" para agrupar en este lote.</td></tr>';
+                return;
+            }
+
+            const agrupado = pendientes.reduce((acc, curr) => {
+                if (!acc[curr.calibre]) {
+                    acc[curr.calibre] = { cantidad: 0, dinero: 0 };
+                }
+                acc[curr.calibre].cantidad += parseInt(curr.cantidad || 0);
+                acc[curr.calibre].dinero += parseFloat(curr.subtotal || 0);
+                return acc;
+            }, {});
+
+            tbodyResumen.innerHTML = '';
+            for (const calibre in agrupado) {
+                tbodyResumen.innerHTML += `<tr>
+                    <td style="text-align:center; padding:12px;"><b>${calibre}</b></td>
+                    <td style="text-align:center; padding:12px; font-size:1.05rem; color:#2E7D32;"><strong>${agrupado[calibre].cantidad} unidades</strong></td>
+                    <td style="text-align:right; padding:12px; font-weight:bold; color:#1565C0;">$ ${agrupado[calibre].dinero.toFixed(2)} USD</td>
+                </tr>`;
+            }
+        }
+
+        function renderizarHistoricoDetalladoAdmin(pedidos) {
+            const tbodyDetalle = document.getElementById('tbody-anillas-historico-detallado');
+            if (!tbodyDetalle) return;
+
+            if (!pedidos || pedidos.length === 0) {
+                tbodyDetalle.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#999; padding:20px;">No se encontraron registros bajo este filtro.</td></tr>';
+                return;
+            }
+
+            tbodyDetalle.innerHTML = pedidos.map(p => {
+                const claseBadge = p.estado === 'Consolidado' ? 'activo' : 'pendiente';
+                const partes = p.fecha ? p.fecha.split('-') : [];
+                const fechaUI = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : p.fecha;
+
+                return `<tr>
+                    <td style="padding:10px; text-align:center;">${fechaUI}</td>
+                    <td style="padding:10px; text-align:center;"><code>${p.socio_cn || 'S/N'}</code></td>
+                    <td style="padding:10px; text-align:left;">${p.socio_nombre || 'Desconocido'}</td>
+                    <td style="padding:10px; text-align:center;"><b>${p.calibre}</b></td>
+                    <td style="padding:10px; text-align:center;"><span style="background:#eee; padding:2px 6px; border-radius:4px;">${p.rango}</span></td>
+                    <td style="padding:10px; text-align:center;">${p.cantidad} un.</td>
+                    <td style="padding:10px; text-align:right; font-weight:bold;">$ ${parseFloat(p.subtotal).toFixed(2)}</td>
+                    <td style="padding:10px; text-align:center;"><span class="etiqueta ${claseBadge}">${p.estado}</span></td>
+                </tr>`;
+            }).join('');
+        }
+
+        window.aceptarLoteComoConsolidado = async function() {
+            if (!confirm("¿Estás seguro de que deseas aceptar este lote?\n\nEsta acción cambiará el estado de todas las solicitudes 'Pendientes' a 'Consolidado'.")) return;
+
+            try {
+                const { error } = await clienteSupabase
+                    .from('solicitudes_anillas')
+                    .update({ estado: 'Consolidado' })
+                    .eq('estado', 'Pendiente');
+
+                if (error) throw error;
+
+                alert("¡Éxito! El lote completo ha sido consolidado de forma histórica.");
+                cargarConsolidadoAnillas();
+            } catch (err) {
+                alert("Error al procesar la consolidación: " + err.message);
+            }
+        };
+
+        window.cambiarFiltroEstadoAnillas = function(nuevoEstado) {
+            filtroEstadoAnillasActual = nuevoEstado;
+            cargarConsolidadoAnillas();
+        };
 
         document.getElementById('btn-cerrar-sesion').addEventListener('click', async function() { await clienteSupabase.auth.signOut(); window.location.href = "login.html"; });
         document.addEventListener('DOMContentLoaded', () => { verificarAdmin(); renderizarTablaPagos(registroPagosMemoria); });
