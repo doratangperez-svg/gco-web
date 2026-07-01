@@ -731,32 +731,32 @@
         }
 
         function renderizarHistoricoDetalladoAdmin(pedidos) {
-            const tbodyDetalle = document.getElementById('tbody-anillas-historico-detallado');
-            if (!tbodyDetalle) return;
+        const tbodyDetalle = document.getElementById('tbody-anillas-historico-detallado');
+        if (!tbodyDetalle) return;
 
-            if (!pedidos || pedidos.length === 0) {
-                tbodyDetalle.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#999; padding:20px;">No se encontraron registros bajo este filtro.</td></tr>';
-                return;
-            }
-
-            tbodyDetalle.innerHTML = pedidos.map(p => {
-                const claseBadge = p.estado === 'Consolidado' ? 'activo' : 'pendiente';
-                const partes = p.fecha ? p.fecha.split('-') : [];
-                const fechaUI = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : p.fecha;
-
-                return `<tr>
-                    <td style="padding:10px; text-align:center;">${fechaUI}</td>
-                    <td style="padding:10px; text-align:center;"><code>${p.socio_cn || 'S/N'}</code></td>
-                    <td style="padding:10px; text-align:left;">${p.socio_nombre || 'Desconocido'}</td>
-                    <td style="padding:10px; text-align:center;"><b>${p.calibre}</b></td>
-                    <td style="padding:10px; text-align:center;"><span style="background:#eee; padding:2px 6px; border-radius:4px;">${p.rango}</span></td>
-                    <td style="padding:10px; text-align:center;">${p.cantidad} un.</td>
-                    <td style="padding:10px; text-align:right; font-weight:bold;">$ ${parseFloat(p.subtotal).toFixed(2)}</td>
-                    <td style="padding:10px; text-align:center;"><span class="etiqueta ${claseBadge}">${p.estado}</span></td>
-                </tr>`;
-            }).join('');
+        if (!pedidos || pedidos.length === 0) {
+            tbodyDetalle.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#999; padding:20px;">No se encontraron registros bajo este filtro.</td></tr>';
+            return;
         }
 
+        tbodyDetalle.innerHTML = pedidos.map(p => {
+            const claseBadge = p.estado === 'Consolidado' ? 'activo' : 'pendiente';
+            const partes = p.fecha ? p.fecha.split('-') : [];
+            const fechaUI = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : p.fecha;
+
+            // 🌟 Cambiado a p.cn y p.socio para que lea tus columnas reales de Supabase
+            return `<tr>
+                <td style="padding:10px; text-align:center;">${fechaUI}</td>
+                <td style="padding:10px; text-align:center;"><code>${p.cn || 'S/N'}</code></td>
+                <td style="padding:10px; text-align:left;">${p.socio || 'Desconocido'}</td>
+                <td style="padding:10px; text-align:center;"><b>${p.calibre}</b></td>
+                <td style="padding:10px; text-align:center;"><span style="background:#eee; padding:2px 6px; border-radius:4px;">${p.rango}</span></td>
+                <td style="padding:10px; text-align:center;">${p.cantidad} un.</td>
+                <td style="padding:10px; text-align:right; font-weight:bold;">$ ${parseFloat(p.subtotal).toFixed(2)}</td>
+                <td style="padding:10px; text-align:center;"><span class="etiqueta ${claseBadge}">${p.estado}</span></td>
+            </tr>`;
+        }).join('');
+    }
         window.aceptarLoteComoConsolidado = async function() {
             if (!confirm("¿Estás seguro de que deseas aceptar este lote?\n\nEsta acción cambiará el estado de todas las solicitudes 'Pendientes' a 'Consolidado'.")) return;
 
