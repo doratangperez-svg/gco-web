@@ -336,8 +336,9 @@
                 estado: 'Pendiente'
             }));
 
+            // 🌟 CORRECCIÓN AQUÍ: Cambiado de 'pedidos_anillas' a 'solicitudes_anillas'
             const { error } = await clienteSupabase
-                .from('pedidos_anillas')
+                .from('solicitudes_anillas') 
                 .insert(filasAInsertar);
 
             if (error) throw error;
