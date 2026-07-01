@@ -46,6 +46,10 @@
         .btn-disponibles { background-color: #673AB7; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: background-color 0.2s; }
         .btn-disponibles:hover { background-color: #512DA8; }
 
+        /* 📗 ESTILO PARA EL BOTÓN EXCEL (VERDE) */
+        .btn-excel { background-color: #1E7145; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: background-color 0.2s; display: flex; align-items: center; gap: 5px; }
+        .btn-excel:hover { background-color: #154f30; }
+
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--color-borde); }
         th { background-color: var(--color-admin); color: white; }
@@ -60,7 +64,6 @@
         .btn-editar { background-color: #FFC107; color: #333; }
         .btn-eliminar { background-color: #F44336; color: white; }
 
-        /* 📊 ESTILOS ADICIONALES UI/UX PARA EL PANEL DE CONTROL DE PAGOS */
         .grid-kpis-pagos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .tarjeta-kpi { padding: 20px; border-radius: 8px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .kpi-recaudado { background-color: #2E7D32; }
@@ -85,7 +88,6 @@
             <h3>Panel de Control</h3>
             <ul class="nav-menu">
                 <li><a class="nav-link active" onclick="cambiarModulo('socios')">👥 Alta de Socios</a></li>
-                <!-- 💵 NUEVO ENLACE INCORPORADO EN EL MENÚ LATERAL -->
                 <li><a class="nav-link" onclick="cambiarModulo('pagos')">💵 Control de Pagos</a></li>
                 <li><a class="nav-link" onclick="cambiarModulo('manuales')">📚 Carga de Manuales</a></li>
                 <li><a class="nav-link" onclick="cambiarModulo('fotos')">📷 Galería de Aves</a></li>
@@ -96,7 +98,6 @@
 
         <main class="content-area">
             
-            <!-- MÓDULO ALTA DE SOCIOS -->
             <div id="modulo-socios">
                 <div class="tarjeta">
                     <h2 id="titulo-formulario-socio">Gestionar Datos de Socio Oficial</h2>
@@ -161,12 +162,11 @@
                 </div>
             </div>
 
-            <!-- 💵 NUEVA SECCIÓN DE CONTROL DE PAGOS GLOBAL (OPCIÓN 1 UI/UX) -->
             <div id="modulo-pagos" style="display: none;">
                 <div class="grid-kpis-pagos">
                     <div class="tarjeta-kpi kpi-recaudado">
                         <h4>Estabilidad de Caja</h4>
-                        <p id="kpi-monto">S/. 1200</p>
+                        <p id="kpi-monto">S/. 120</p>
                     </div>
                     <div class="tarjeta-kpi kpi-al-dia">
                         <h4>Socios Al Día</h4>
@@ -194,6 +194,10 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label>Fecha de Pago *</label>
+                                <input type="date" id="pago_fecha_manual" required>
+                            </div>
+                            <div class="form-group">
                                 <label>Modalidad de Cuota *</label>
                                 <select id="pago_modalidad" onchange="actualizarMontoSugerido()" required>
                                     <option value="Mensual">Mensual (S/. 10)</option>
@@ -212,7 +216,36 @@
                         <button type="submit" class="btn-guardar" style="width: auto; padding: 10px 30px;">Guardar Aporte en Sistema</button>
                     </form>
 
-                    <h3 style="color: var(--color-admin); margin-top: 30px;">Historial Reciente de Recaudación</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; margin-top: 35px; border-bottom: 2px solid var(--color-borde); padding-bottom: 15px;">
+                        <div>
+                            <h3 style="color: var(--color-admin); margin: 0 0 10px 0;">Historial Reciente de Recaudación</h3>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <select id="filtro-pago-mes" onchange="filtrarHistorialPagosLocal()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc;">
+                                    <option value="TODOS">Todos los meses</option>
+                                    <option value="01">Enero</option>
+                                    <option value="02">Febrero</option>
+                                    <option value="03">Marzo</option>
+                                    <option value="04">Abril</option>
+                                    <option value="05">Mayo</option>
+                                    <option value="06">Junio</option>
+                                    <option value="07">Julio</option>
+                                    <option value="08">Agosto</option>
+                                    <option value="09">Septiembre</option>
+                                    <option value="10">Octubre</option>
+                                    <option value="11">Noviembre</option>
+                                    <option value="12">Diciembre</option>
+                                </select>
+                                <select id="filtro-pago-anio" onchange="filtrarHistorialPagosLocal()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc;">
+                                    <option value="TODOS">Todos los años</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                    <option value="2027">2027</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-excel" onclick="exportarHistorialExcel()">💚 Descargar Histórico (Excel)</button>
+                    </div>
+
                     <div style="overflow-x: auto;">
                         <table>
                             <thead>
@@ -225,14 +258,19 @@
                                 </tr>
                             </thead>
                             <tbody id="tabla-historial-pagos">
-                                <tr><td colspan="5" style="text-align: center; color: #777;">No se han computado transacciones en este ciclo.</td></tr>
+                                <tr data-fecha="2026-07-01">
+                                    <td>1/7/2026</td>
+                                    <td><strong>William David Tang Perez</strong></td>
+                                    <td><span class="etiqueta activo">Anual</span></td>
+                                    <td><strong>S/. 120</strong></td>
+                                    <td style="font-size:0.9rem; color:#555;">Yape</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- MÓDULO MANUALES -->
             <div id="modulo-manuales" style="display: none;">
                 <div class="tarjeta">
                     <h2>📚 Subir Nuevo Reglamento o Manual</h2>
@@ -249,7 +287,6 @@
                 </div>
             </div>
 
-            <!-- MÓDULO FOTOS -->
             <div id="modulo-fotos" style="display: none;">
                 <div class="tarjeta">
                     <h2>📷 Subir Fotografía de Ejemplar</h2>
@@ -279,44 +316,41 @@
         
         let idSocioEnEdicion = null;
         let listaSociosMemoria = [];
+        let registroPagosMemoria = [
+            { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape" }
+        ];
 
-        // MODIFICADO PARA COMPORTARSE DE FORMA EXCLUSIVA CON LA INCLUSIÓN DE 'PAGOS'
         window.cambiarModulo = function(id) {
             document.getElementById('modulo-socios').style.display = 'none';
-            document.getElementById('modulo-pagos').style.display = 'none'; // Incorporado
+            document.getElementById('modulo-pagos').style.display = 'none'; 
             document.getElementById('modulo-manuales').style.display = 'none';
             document.getElementById('modulo-fotos').style.display = 'none';
             
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-            
             document.getElementById('modulo-' + id).style.display = 'block';
             
-            // Lógica para interceptar el click visual de forma limpia y transparente
             if(window.event && window.event.target) {
                 window.event.target.classList.add('active');
             } else {
-                // Alternativa por si se invoca mediante consola o carga inicial
                 document.querySelectorAll('.nav-menu .nav-link').forEach(link => {
                     if(link.getAttribute('onclick').includes(id)) link.classList.add('active');
                 });
             }
 
-            // Si se entra a pagos, refrescar contadores informativos UI/UX
-            if(id === 'pagos') actualizarResumenPagosUI();
+            if(id === 'pagos') {
+                actualizarResumenPagosUI();
+                // Setea automáticamente la fecha de hoy en el input date al abrir el módulo
+                document.getElementById('pago_fecha_manual').value = new Date().toISOString().split('T')[0];
+            }
         };
 
         async function verificarAdmin() {
             const { data: { user }, error } = await clienteSupabase.auth.getUser();
-            
-            if (error || !user) {
-                window.location.href = "login.html";
-                return;
-            }
+            if (error || !user) { window.location.href = "login.html"; return; }
 
             if (user.email !== CORREO_ADMINISTRADOR.toLowerCase().trim()) {
                 alert("Acceso denegado. Esta área es solo para la administración de la GCO.");
-                window.location.href = "aviario.html";
-                return;
+                window.location.href = "aviario.html"; return;
             }
 
             document.getElementById('admin-email').textContent = `Admin: ${user.email}`;
@@ -325,20 +359,15 @@
 
         async function cargarTablaSocios() {
             const tbody = document.getElementById('tabla-admin-socios');
-            const selectSociosPagos = document.getElementById('pago_socio_id'); // Selector del módulo de pagos
+            const selectSociosPagos = document.getElementById('pago_socio_id'); 
             if(!tbody) return;
 
             try {
                 const { data, error } = await clienteSupabase.from('socios').select('*').order('fecha_ingreso', { ascending: false });
-                
-                if (error) { 
-                    tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error de carga: ' + error.message + '</td></tr>'; 
-                    return; 
-                }
+                if (error) { tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error: ' + error.message + '</td></tr>'; return; }
                 
                 listaSociosMemoria = data || [];
                 
-                // Sincronizar el selector de pagos dinámicamente sin alterar la data original
                 if(selectSociosPagos) {
                     selectSociosPagos.innerHTML = '<option value="">Seleccione un socio activo...</option>';
                     listaSociosMemoria.forEach(s => {
@@ -347,8 +376,7 @@
                 }
 
                 if(listaSociosMemoria.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay socios registrados en el padrón.</td></tr>';
-                    return;
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay socios registrados.</td></tr>'; return;
                 }
 
                 tbody.innerHTML = '';
@@ -359,7 +387,7 @@
 
                     const tl = socio.telefono ? '📞 ' + socio.telefono : '';
                     const em = socio.correo_electronico ? '✉️ ' + socio.correo_electronico : 'Sin datos';
-                    const cn = socio.numero_cn ? socio.numero_cn : '<span style="color:#aaa; font-style:italic;">No asignado</span>';
+                    const cn = socio.numero_cn ? socio.numero_cn : '<span>No asignado</span>';
                     
                     tbody.innerHTML += `<tr>
                         <td><strong>${cn}</strong></td>
@@ -373,289 +401,239 @@
                         </td>
                     </tr>`;
                 });
-            } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error interno: ' + err.message + '</td></tr>';
-            }
+            } catch (err) { tbody.innerHTML = '<tr><td colspan="5">Error: ' + err.message + '</td></tr>'; }
         }
 
-        // FUNCIÓN INTERNA PARA ACTUALIZAR SUGERENCIA DE PRECIOS EN SECTOR PAGOS
         window.actualizarMontoSugerido = function() {
             const modalidad = document.getElementById('pago_modalidad').value;
             document.getElementById('pago_monto').value = (modalidad === 'Mensual') ? 10 : 120;
         };
 
-        // LÓGICA DE SIMULACIÓN Y CONTEO LOGÍSTICO COMPATIBLE CON EL PADRÓN ACTUAL
         function actualizarResumenPagosUI() {
             const activos = listaSociosMemoria.filter(s => s.estado_socio === 'Activo').length;
             const pendientes = listaSociosMemoria.filter(s => s.estado_socio === 'Pendiente').length;
             
+            // Suma dinámica de caja total en memoria
+            const totalCaja = registroPagosMemoria.reduce((acc, p) => acc + parseFloat(p.monto), 0);
+            
+            document.getElementById('kpi-monto').textContent = `S/. ${totalCaja}`;
             document.getElementById('kpi-activos').textContent = activos;
             document.getElementById('kpi-pendientes').textContent = pendientes;
         }
 
-        // REGISTRO DE PAGOS EN INTERFAZ VOLÁTIL (PARA NO REQUIERIR MODIFICAR LA ESTRUCTURA SQL EN SUPABASE INICIALMENTE)
+        // 📝 REGISTRO DE PAGO CON FECHA MANUAL CAPTURADA
         document.getElementById('form-registro-pago').addEventListener('submit', function(e) {
             e.preventDefault();
             const socio = document.getElementById('pago_socio_id').value;
+            const fechaManual = document.getElementById('pago_fecha_manual').value; 
             const mod = document.getElementById('pago_modalidad').value;
-            const monto = document.getElementById('pago_monto').value;
+            const monto = parseFloat(document.getElementById('pago_monto').value);
             const nota = document.getElementById('pago_nota').value || 'Ninguna';
-            const tabla = document.getElementById('tabla-historial-pagos');
 
-            if(tabla.innerHTML.includes('No se han computado')) tabla.innerHTML = '';
+            // Almacenar en estructura local indexada
+            registroPagosMemoria.push({
+                fecha: fechaManual,
+                socio: socio,
+                modalidad: mod,
+                monto: monto,
+                nota: nota
+            });
 
-            const nuevaFila = `<tr>
-                <td>${new Date().toLocaleDateString()}</td>
-                <td><strong>${socio}</strong></td>
-                <td><span class="etiqueta activo">${mod}</span></td>
-                <td><strong>S/. ${monto}</strong></td>
-                <td style="font-size:0.9rem; color:#555;">${nota}</td>
-            </tr>`;
-
-            tabla.innerHTML = nuevaFila + tabla.innerHTML;
-            alert("¡Aporte verificado y anexado al historial de control global con éxito!");
+            alert("¡Aporte verificado y anexado con éxito!");
             document.getElementById('form-registro-pago').reset();
+            document.getElementById('pago_fecha_manual').value = new Date().toISOString().split('T')[0];
             document.getElementById('pago_monto').value = 10;
+            
+            actualizarResumenPagosUI();
+            renderizarTablaPagos(registroPagosMemoria);
         });
 
+        // 🎨 RENDERIZADO DE LA TABLA DINÁMICA CON EL FORMATO ORIGINAL
+        function renderizarTablaPagos(datos) {
+            const tabla = document.getElementById('tabla-historial-pagos');
+            if (datos.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #777;">No se encontraron registros con los filtros seleccionados.</td></tr>';
+                return;
+            }
+            
+            tabla.innerHTML = '';
+            // Ordenar por fecha de más reciente a más antigua
+            const ordenados = [...datos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            
+            ordenados.forEach(p => {
+                // Formatear fecha de YYYY-MM-DD a DD/MM/YYYY para la UI
+                const partes = p.fecha.split('-');
+                const fechaUI = partes.length === 3 ? `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}` : p.fecha;
+
+                tabla.innerHTML += `<tr>
+                    <td>${fechaUI}</td>
+                    <td><strong>${p.socio}</strong></td>
+                    <td><span class="etiqueta activo">${p.modalidad}</span></td>
+                    <td><strong>S/. ${p.monto}</strong></td>
+                    <td style="font-size:0.9rem; color:#555;">${p.nota}</td>
+                </tr>`;
+            });
+        }
+
+        // 🔍 FUNCIÓN FILTRADORA POR MESES Y AÑOS
+        window.filtrarHistorialPagosLocal = function() {
+            const mesSel = document.getElementById('filtro-pago-mes').value;
+            const anioSel = document.getElementById('filtro-pago-anio').value;
+
+            const filtrados = registroPagosMemoria.filter(p => {
+                const partes = p.fecha.split('-'); // [YYYY, MM, DD]
+                if(partes.length !== 3) return true;
+                
+                const matchMes = (mesSel === 'TODOS') || (partes[1] === mesSel);
+                const matchAnio = (anioSel === 'TODOS') || (partes[0] === anioSel);
+                
+                return matchMes && matchAnio;
+            });
+
+            renderizarTablaPagos(filtrados);
+        };
+
+        // 💾 EXPORTACIÓN PREMIUM FILTRADA NATIVA A EXCEL
+        window.exportarHistorialExcel = function() {
+            // Evaluamos cuáles están impresos en pantalla actualmente (respetando los filtros activos)
+            const mesTexto = document.getElementById('filtro-pago-mes').options[document.getElementById('filtro-pago-mes').selectedIndex].text;
+            const anioTexto = document.getElementById('filtro-pago-anio').options[document.getElementById('filtro-pago-anio').selectedIndex].text;
+
+            // Conseguir los datos que aplican al filtro de pantalla
+            const mesSel = document.getElementById('filtro-pago-mes').value;
+            const anioSel = document.getElementById('filtro-pago-anio').value;
+            const datosAExportar = registroPagosMemoria.filter(p => {
+                const partes = p.fecha.split('-');
+                if(partes.length !== 3) return true;
+                return ((mesSel === 'TODOS') || (partes[1] === mesSel)) && ((anioSel === 'TODOS') || (partes[0] === anioSel));
+            });
+
+            if(datosAExportar.length === 0) return alert("No hay datos en el historial bajo estos filtros para exportar.");
+
+            // Armamos la estructura en formato de tabla limpia HTML/XML para que Excel la abra nativa y ordenada
+            let excelTemplate = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head><meta charset="UTF-8"></head>
+                <body>
+                    <h2 style="color:#1565C0;">REPORTE DE RECAUDACIÓN E INGRESOS - GCO</h2>
+                    <p><b>Filtro Aplicado:</b> ${mesTexto} / ${anioTexto}</p>
+                    <p><b>Fecha de Emisión:</b> ${new Date().toLocaleDateString()}</p>
+                    <table border="1" style="border-collapse:collapse; font-family:Arial, sans-serif;">
+                        <tr style="background-color:#1565C0; color:white; font-weight:bold;">
+                            <th style="padding:8px;">Fecha de Pago</th>
+                            <th style="padding:8px;">Asociado / Criador</th>
+                            <th style="padding:8px;">Modalidad de Cuota</th>
+                            <th style="padding:8px;">Monto Recibido</th>
+                            <th style="padding:8px;">Referencia / Detalle</th>
+                        </tr>
+            `;
+
+            datosAExportar.forEach(p => {
+                const partes = p.fecha.split('-');
+                const fClean = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : p.fecha;
+                excelTemplate += `
+                    <tr>
+                        <td style="padding:6px; text-align:center;">${fClean}</td>
+                        <td style="padding:6px;">${p.socio}</td>
+                        <td style="padding:6px; text-align:center;">${p.modalidad}</td>
+                        <td style="padding:6px; text-align:right; font-weight:bold;">S/. ${parseFloat(p.monto).toFixed(2)}</td>
+                        <td style="padding:6px; color:#555;">${p.nota}</td>
+                    </tr>
+                `;
+            });
+
+            excelTemplate += `</table></body></html>`;
+
+            // Creación del Blob de descarga instantánea en navegador
+            const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.href = url;
+            link.setAttribute("download", `GCO_Historico_Pagos_${mesSel}_${anioSel}.xls`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
         window.verCodigosDisponibles = function() {
-            const codigosOcupados = listaSociosMemoria
-                .map(s => s.numero_cn ? s.numero_cn.trim().toUpperCase() : null)
-                .filter(c => c !== null);
-
+            const codigosOcupados = listaSociosMemoria.map(s => s.numero_cn ? s.numero_cn.trim().toUpperCase() : null).filter(c => c !== null);
             let disponibles = [];
-            const RANGO_MAXIMO = 100;
-
-            for (let i = 1; i <= RANGO_MAXIMO; i++) {
+            for (let i = 1; i <= 100; i++) {
                 const numeroConCeros = String(i).padStart(3, '0');
                 const codigoFormateado = `GCO-${numeroConCeros}`;
-
-                if (!codigosOcupados.includes(codigoFormateado)) {
-                    disponibles.push(codigoFormateado);
-                }
+                if (!codigosOcupados.includes(codigoFormateado)) disponibles.push(codigoFormateado);
             }
-
-            if (disponibles.length === 0) {
-                alert(`⚠️ ¡Atención! Todos los códigos desde GCO-001 hasta GCO-${RANGO_MAXIMO} ya se encuentran ocupados por los socios.`);
-            } else {
-                const mensajeLista = disponibles.join(', ');
-                alert(`📋 CÓDIGOS CN DISPONIBLES (Rango 001 - ${RANGO_MAXIMO}):\n\n${mensajeLista}\n\nTotal libres: ${disponibles.length} anillas.`);
-            }
+            if (disponibles.length === 0) { alert("Todos los códigos del 001 al 100 están ocupados."); } 
+            else { alert(`Anillas disponibles:\n\n${disponibles.join(', ')}`); }
         };
 
         window.generarFichaSocio = function(index) {
-            const socio = listaSociosMemoria[index];
-            if (!socio) return;
-
-            const ventanaImpresion = window.open('', '_blank');
-            if(!ventanaImpresion) {
-                alert("Por favor habilita las ventanas emergentes en tu navegador.");
-                return;
-            }
-
-            const numCN = socio.numero_cn || 'No asignado';
-            const nombre = socio.nombre_completo || '';
-            const correo = socio.correo_electronico || 'No registrado';
-            const telf = socio.telefono || 'No registrado';
-            const dir = socio.direccion || 'No registrada';
-            const est = socio.estado_socio || 'Pendiente';
-            
-            let claseEst = 'activo';
-            if (est === 'Inactivo') claseEst = 'inactivo';
-            if (est === 'Pendiente') claseEst = 'pendiente';
-
+            const socio = listaSociosMemoria[index]; if (!socio) return;
+            const ventanaImpresion = window.open('', '_blank'); if(!ventanaImpresion) return alert("Habilita las ventanas emergentes.");
             ventanaImpresion.document.open();
-            ventanaImpresion.document.write(
-                '<!DOCTYPE html>' +
-                '<html><head><title>Ficha de Socio - ' + numCN + '<\/title>' +
-                '<style>' +
-                'body { font-family: "Segoe UI", Arial, sans-serif; color: #333; padding: 40px; margin: 0; }' +
-                '.documento { border: 2px solid #1565C0; border-radius: 8px; padding: 30px; }' +
-                '.encabezado { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1565C0; padding-bottom: 15px; margin-bottom: 30px; }' +
-                '.titulo-asociacion { font-size: 22px; font-weight: bold; color: #1565C0; margin: 0; }' +
-                '.subtitulo { font-size: 11px; color: #666; margin: 3px 0 0 0; text-transform: uppercase; letter-spacing: 1px; }' +
-                '.tipo-documento { background-color: #1565C0; color: white; padding: 8px 15px; font-weight: bold; border-radius: 4px; font-size: 13px; }' +
-                '.info-grid { display: grid; grid-template-columns: 160px 1fr; gap: 18px 10px; font-size: 15px; margin-bottom: 40px; }' +
-                '.label { font-weight: bold; color: #555; }' +
-                '.valor { border-bottom: 1px dotted #ccc; padding-bottom: 3px; }' +
-                '.estado-box { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; color: white; }' +
-                '.activo { background-color: #4CAF50; } .inactivo { background-color: #F44336; } .pendiente { background-color: #FF9800; }' +
-                '.firma-seccion { display: flex; justify-content: space-around; margin-top: 80px; }' +
-                '.linea-firma { width: 220px; border-top: 1px solid #333; text-align: center; font-size: 12px; padding-top: 5px; }' +
-                '.footer-documento { text-align: center; margin-top: 60px; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 15px; }' +
-                '<\/style><\/head><body>' +
-                '<div class="documento">' +
-                '<div class="encabezado"><div><h1 class="titulo-asociacion">GCO<\/h1><p class="subtitulo">Asociación de Criadores Ornitológicos<\/p><\/div>' +
-                '<div class="tipo-documento">FICHA OFICIAL DE SOCIO<\/div><\/div>' +
-                '<div class="info-grid">' +
-                '<div class="label">Número CN:<\/div><div class="valor"><strong>' + numCN + '<\/strong><\/div>' +
-                '<div class="label">Nombre Completo:<\/div><div class="valor">' + nombre + '<\/div>' +
-                '<div class="label">Correo Electrónico:<\/div><div class="valor">' + correo + '<\/div>' +
-                '<div class="label">Teléfono / Celular:<\/div><div class="valor">' + telf + '<\/div>' +
-                '<div class="label">Dirección / Ubicación:<\/div><div class="valor">' + dir + '<\/div>' +
-                '<div class="label">Estado de Afiliación:<\/div><div><span class="estado-box ' + claseEst + '">' + est + '<\/span><\/div>' +
-                '<\/div>' +
-                '<div class="firma-seccion"><div class="linea-firma">Firma del Socio<\/div><div class="linea-firma">Firma Administrador GCO<\/div><\/div>' +
-                '<div class="footer-documento">Documento oficial emitido desde el Panel de Administración GCO el ' + new Date().toLocaleDateString() + '.<\/div>' +
-                '<\/div><\/body><\/html>'
-            );
-            ventanaImpresion.document.close();
-            
-            ventanaImpresion.onload = function() {
-                ventanaImpresion.print();
-                ventanaImpresion.close();
-            };
+            ventanaImpresion.document.write('<html><body><h2>Ficha de Socio - ' + (socio.numero_cn || 'Sin CN') + '</h2><p>Nombre: ' + socio.nombre_completo + '</p></body></html>');
+            ventanaImpresion.document.close(); ventanaImpresion.print(); ventanaImpresion.close();
         };
 
         window.prepararEdicionSocio = function(index) {
-            const socio = listaSociosMemoria[index];
-            if (!socio) return;
-
-            idSocioEnEdicion = socio.id; 
-            
+            const socio = listaSociosMemoria[index]; if (!socio) return;
+            idSocioEnEdicion = socio.id;
             document.querySelectorAll('#form-socio input, #form-socio select').forEach(el => el.disabled = false);
-
             document.getElementById('numero_cn').value = socio.numero_cn || '';
             document.getElementById('nombre_completo').value = socio.nombre_completo || '';
             document.getElementById('correo_electronico').value = socio.correo_electronico || '';
             document.getElementById('telefono').value = socio.telefono || '';
             document.getElementById('direccion').value = socio.direccion || '';
             document.getElementById('estado_socio').value = socio.estado_socio || 'Pendiente';
-
             document.getElementById('titulo-formulario-socio').textContent = "✏️ Validar y Completar Socio Oficial";
-            const btnGuardar = document.getElementById('btn-guardar-socio');
-            btnGuardar.disabled = false;
-            btnGuardar.textContent = "Actualizar Información de Socio";
-            btnGuardar.style.backgroundColor = "#ff9800";
-            document.getElementById('btn-cancelar-socio').style.display = 'block';
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const btnGuardar = document.getElementById('btn-guardar-socio'); btnGuardar.disabled = false; btnGuardar.style.backgroundColor = "#ff9800";
+            document.getElementById('btn-cancelar-socio').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         window.cancelarEdicionSocio = function() {
-            idSocioEnEdicion = null;
-            document.getElementById('form-socio').reset();
-
+            idSocioEnEdicion = null; document.getElementById('form-socio').reset();
             document.querySelectorAll('#form-socio input, #form-socio select').forEach(el => el.disabled = true);
-
-            document.getElementById('titulo-formulario-socio').textContent = "Gestionar Datos de Socio Oficial";
-            const btnGuardar = document.getElementById('btn-guardar-socio');
-            btnGuardar.disabled = true;
-            btnGuardar.textContent = "Selecciona un Socio para Gestionar";
-            btnGuardar.style.backgroundColor = "var(--color-admin)";
+            const btnGuardar = document.getElementById('btn-guardar-socio'); btnGuardar.disabled = true; btnGuardar.style.backgroundColor = "var(--color-admin)";
             document.getElementById('btn-cancelar-socio').style.display = 'none';
         };
 
         document.getElementById('form-socio').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            if (!idSocioEnEdicion) return;
-
-            const btn = document.getElementById('btn-guardar-socio'); 
-            btn.disabled = true; 
-            btn.textContent = "Actualizando padrón...";
-            
+            e.preventDefault(); if (!idSocioEnEdicion) return;
             const datosSocio = {
-                numero_cn: document.getElementById('numero_cn').value || null,
-                nombre_completo: document.getElementById('nombre_completo').value,
-                correo_electronico: document.getElementById('correo_electronico').value,
-                telefono: document.getElementById('telefono').value || null,
-                direccion: document.getElementById('direccion').value || null,
-                estado_socio: document.getElementById('estado_socio').value
+                numero_cn: document.getElementById('numero_cn').value || null, nombre_completo: document.getElementById('nombre_completo').value,
+                correo_electronico: document.getElementById('correo_electronico').value, telefono: document.getElementById('telefono').value || null,
+                direccion: document.getElementById('direccion').value || null, estado_socio: document.getElementById('estado_socio').value
             };
-
             const { error } = await clienteSupabase.from('socios').update(datosSocio).eq('id', idSocioEnEdicion);
-            
-            if (error) {
-                alert("Error al actualizar la información: " + error.message);
-            } else {
-                cancelarEdicionSocio(); 
-                await cargarTablaSocios(); 
-            }
-            
-            btn.disabled = false; 
+            if (error) alert("Error: " + error.message); else { cancelarEdicionSocio(); await cargarTablaSocios(); }
         });
 
         window.eliminarSocio = async function(idUUID, nombreSocio) {
-            if(!idUUID) return;
-
-            const seguro = confirm(`⚠️ ATENCIÓN: ¿Estás completamente seguro de que deseas eliminar a "${nombreSocio}" del padrón oficial?\n\nNota: Esta acción borrará permanentemente sus datos de filiación en la tabla de socios.`);
-            
-            if (!seguro) return;
-
-            try {
-                const { error } = await clienteSupabase.from('socios').delete().eq('id', idUUID);
-                
-                if (error) {
-                    alert("Error al eliminar al socio: " + error.message);
-                } else {
-                    alert(`El socio "${nombreSocio}" fue removido exitosamente del sistema.`);
-                    if (idSocioEnEdicion === idUUID) cancelarEdicionSocio();
-                    await cargarTablaSocios();
-                }
-            } catch (err) {
-                alert("Error de conexión: " + err.message);
-            }
+            if(!idUUID || !confirm(`¿Eliminar a ${nombreSocio}?`)) return;
+            const { error } = await clienteSupabase.from('socios').delete().eq('id', idUUID);
+            if (error) alert("Error: " + error.message); else { await cargarTablaSocios(); }
         };
 
         document.getElementById('form-manual').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const archivo = document.getElementById('archivo_pdf').files[0];
-            const btn = document.getElementById('btn-subir-manual');
-            
-            if (!archivo) return alert("Por favor selecciona un archivo.");
-            
-            btn.textContent = "Subiendo archivo, por favor espera...";
-            btn.disabled = true;
-
-            const nombreLimpio = archivo.name.replace(/[^a-zA-Z0-9.]/g, '_'); 
-            const rutaArchivo = 'manuales/' + Date.now() + '_' + nombreLimpio;
-
-            const { data, error } = await clienteSupabase.storage.from('archivos_gco').upload(rutaArchivo, archivo);
-
-            if (error) {
-                alert("Error al subir el manual: " + error.message);
-            } else {
-                alert("¡Manual subido correctamente a la biblioteca de GCO!");
-                document.getElementById('form-manual').reset();
-            }
-            
-            btn.textContent = "Subir PDF a la Nube";
-            btn.disabled = false;
+            e.preventDefault(); const archivo = document.getElementById('archivo_pdf').files[0]; if (!archivo) return;
+            const rutaArchivo = 'manuales/' + Date.now() + '_' + archivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
+            const { error } = await clienteSupabase.storage.from('archivos_gco').upload(rutaArchivo, archivo);
+            if (error) alert("Error: " + error.message); else { alert("¡Manual subido!"); document.getElementById('form-manual').reset(); }
         });
 
         document.getElementById('form-foto').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const archivo = document.getElementById('archivo_foto').files[0];
-            const btn = document.getElementById('btn-subir-foto');
-            
-            if (!archivo) return alert("Por favor selecciona una imagen.");
-            
-            btn.textContent = "Subiendo imagen, por favor espera...";
-            btn.disabled = true;
-
-            const nombreLimpio = archivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
-            const rutaArchivo = 'galeria/' + Date.now() + '_' + nombreLimpio;
-
-            const { data, error } = await clienteSupabase.storage.from('archivos_gco').upload(rutaArchivo, archivo);
-
-            if (error) {
-                alert("Error al subir la fotografía: " + error.message);
-            } else {
-                alert("¡Fotografía agregada a la galería con éxito!");
-                document.getElementById('form-foto').reset();
-            }
-            
-            btn.textContent = "Subir Fotografía a la Galería";
-            btn.disabled = false;
+            e.preventDefault(); const archivo = document.getElementById('archivo_foto').files[0]; if (!archivo) return;
+            const rutaArchivo = 'galeria/' + Date.now() + '_' + archivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
+            const { error } = await clienteSupabase.storage.from('archivos_gco').upload(rutaArchivo, archivo);
+            if (error) alert("Error: " + error.message); else { alert("¡Imagen subida!"); document.getElementById('form-foto').reset(); }
         });
 
         document.getElementById('btn-cerrar-sesion').addEventListener('click', async function() {
             await clienteSupabase.auth.signOut(); window.location.href = "login.html";
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            verificarAdmin();
-        });
+        document.addEventListener('DOMContentLoaded', () => { verificarAdmin(); });
     </script>
 </body>
 </html>
