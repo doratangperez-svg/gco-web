@@ -48,12 +48,6 @@
         .tabla-mini { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 5px; table-layout: fixed; }
         .tabla-mini th { background-color: var(--color-principal); color: white; padding: 10px 6px; text-align: center; font-size: 0.82rem; font-weight: 600; }
         .tabla-mini td { padding: 12px 6px; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; }
-        
-        .tabla-mini th:nth-child(1), .tabla-mini td:nth-child(1) { width: 18%; }
-        .tabla-mini th:nth-child(2), .tabla-mini td:nth-child(2) { width: 20%; }
-        .tabla-mini th:nth-child(3), .tabla-mini td:nth-child(3) { width: 18%; text-align: right; }
-        .tabla-mini th:nth-child(4), .tabla-mini td:nth-child(4) { width: 16%; }
-        .tabla-mini th:nth-child(5), .tabla-mini td:nth-child(5) { width: 28%; }
 
         .badge-vencimiento {
             color: #d32f2f; font-weight: bold; background-color: #ffebee; padding: 4px 6px; border-radius: 6px; font-size: 0.78rem; display: inline-block; white-space: nowrap; border: 1px solid #ffcdd2;
@@ -84,13 +78,11 @@
             <li><a class="nav-link active" onclick="cambiarModulo(this, 'cuenta')">📋 Mi Cuenta Oficial</a></li>
             <li><a class="nav-link" onclick="cambiarModulo(this, 'consultor')">🔍 Consultor de Socios</a></li>
             <li><a class="nav-link" onclick="cambiarModulo(this, 'manuales')">📚 Biblioteca de Manuales</a></li>
-            <!-- 💍 NUEVA OPCIÓN SOLICITADA PARA EL PEDIDO DE ANILLAS -->
             <li><a class="nav-link" onclick="cambiarModulo(this, 'anillas')">💍 Solicitar Anillas</a></li>
         </ul>
     </aside>
 
     <main>
-        <!-- 📋 MÓDULO MI CUENTA OFICIAL -->
         <div id="modulo-cuenta" class="modulo-seccion">
             <div class="grid-perfil-pagos">
                 <div class="tarjeta-socio">
@@ -105,7 +97,7 @@
 
                 <div class="tarjeta-socio">
                     <h3>💵 Mi Estado de Cuenta</h3>
-                    <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom:15px;">Registro de cuotas institucionales computadas de forma manual por la administración (Mensual S/. 10 / Anual S/. 120).</p>
+                    <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom:15px;">Registro de cuotas institucionales computadas de forma manual por la administración.</p>
                     <div style="max-height: 210px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
                         <table class="tabla-mini">
                             <thead>
@@ -123,10 +115,8 @@
             </div>
         </div>
 
-        <!-- 💍 NUEVO MÓDULO SOLICITADO: PEDIDO DE ANILLAS OFICIALES -->
         <div id="modulo-anillas" class="modulo-seccion" style="display: none;">
             <div class="grid-perfil-pagos">
-                <!-- Formulario de Entrada por Calibre -->
                 <div class="tarjeta-socio">
                     <h3>💍 Configurar Calibre</h3>
                     <p style="color:#666; font-size:0.85rem; margin-top:0;">Selecciona el diámetro y rango. <br><b>Precios:</b> Hasta 6.9mm: $0.45 | Desde 7.0mm: $0.72</p>
@@ -134,24 +124,24 @@
                     <div class="form-group-anilla">
                         <label>Calibre del Anillo *</label>
                         <select id="anilla-calibre" onchange="calcularMontoLineaAnilla()">
-                            <option value="2.5">2.5 mm (Canarios exóticos / Finches) - $0.45</option>
-                            <option value="3.0">3.0 mm (Canarios de color y postura) - $0.45</option>
+                            <option value="2.5">2.5 mm (Exóticos / Finches) - $0.45</option>
+                            <option value="3.0">3.0 mm (Canarios de color) - $0.45</option>
                             <option value="4.0">4.0 mm (Agapornis / Periquitos) - $0.45</option>
                             <option value="4.5">4.5 mm (Agapornis Fischer / Personatus) - $0.45</option>
                             <option value="5.5">5.5 mm (Ninfas / Cotorras) - $0.45</option>
                             <option value="7.0">7.0 mm (Palomas / Loros medianos) - $0.72</option>
-                            <option value="8.0">8.0 mm (Guacamayos menores) - S/. 120</option>
+                            <option value="8.0">8.0 mm (Guacamayos menores) - $0.72</option>
                         </select>
                     </div>
                     
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <div class="form-group">
+                        <div class="form-group-anilla">
                             <label>Inicio Rango *</label>
-                            <input type="number" id="pago_anilla_inicio" value="1" min="1" oninput="calcularMontoEInsignia()">
+                            <input type="number" id="pago_anilla_inicio" value="1" min="1" oninput="calcularMontoLineaAnilla()">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group-anilla">
                             <label>Fin Rango *</label>
-                            <input type="number" id="pago_anilla_fin" value="10" min="1" oninput="calcularMontoEInsignia()">
+                            <input type="number" id="pago_anilla_fin" value="10" min="1" oninput="calcularMontoLineaAnilla()">
                         </div>
                     </div>
 
@@ -167,19 +157,18 @@
                     <button class="btn-agregar-lista" onclick="agregarAnillaAListaPedido()" style="width:100%; margin-top:15px;">➕ Agregar este Calibre al Pedido</button>
                 </div>
 
-                <!-- Carrito / Detalle del pedido consolidado -->
                 <div class="tarjeta-socio" style="display:flex; flex-direction:column; justify-content:space-between;">
                     <div>
-                        <h3>🛒 Resumen de mi Pedido Colectivo</h3>
-                        <p style="color:#666; font-size:0.85rem; margin-top:0;">Puedes incluir múltiples calibres antes de procesar la solicitud oficial.</p>
+                        <h3>🛒 Resumen de mi Pedido Actual</h3>
+                        <p style="color:#666; font-size:0.85rem; margin-top:0;">Puedes incluir múltiples calibres antes de procesar el pedido definitivo.</p>
                         
                         <div style="max-height: 180px; overflow-y: auto; border:1px solid #eee; border-radius:6px; margin-top:10px;">
                             <table class="tabla-mini" style="margin-top:0; table-layout:auto;">
                                 <thead style="background-color:#555;">
-                                    <tr><th>Calibre</th><th>Rango (Ini-Fin)</th><th>Cant.</th><th>Subtotal</th></tr>
+                                    <tr><th>Calibre</th><th>Rango</th><th>Cant.</th><th>Subtotal</th><th>Acción</th></tr>
                                 </thead>
                                 <tbody id="tbody-lista-anillas-solicitadas">
-                                    <tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">No has añadido calibres a este pedido.</td></tr>
+                                    <tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">No has añadido calibres a este pedido.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -189,13 +178,12 @@
                         <div style="background-color:#e3f2fd; padding:12px; border-radius:6px; font-size:1rem; color:#0d47a1; font-weight:bold; text-align:center; border:1px solid #bbdefb; margin-bottom:10px;">
                             MONTO TOTAL DEL PEDIDO: <span id="anilla-total-pedido-global">$ 0.00 USD</span>
                         </div>
-                        <button class="btn-descarga" onclick="enviarSolicitudAnillasSupabase()" style="width:100%; margin-top:0; border-radius:6px;">🚀 Enviar Pedido Oficial a la Administración</button>
+                        <button class="btn-descarga" onclick="enviarSolicitudAnillasSupabase()" style="width:100%; margin-top:0; border-radius:6px;">🚀 Guardar y Enviar Pedido Oficial</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 🔍 MÓDULO CONSULTOR DE SOCIOS -->
         <div id="modulo-consultor" class="modulo-seccion" style="display: none;">
             <div class="tarjeta">
                 <h2>🔍 Consultor de Socios</h2>
@@ -207,7 +195,6 @@
             </div>
         </div>
 
-        <!-- 📚 MÓDULO BIBLIOTECA DE MANUALES -->
         <div id="modulo-manuales" class="modulo-seccion" style="display: none;">
             <div class="tarjeta">
                 <h2>📚 Biblioteca de Manuales</h2>
@@ -223,7 +210,7 @@
     const CORREO_ADMIN = "dtangperez77@gmail.com";
     let directorioSociosMemoria = [];
     
-    // Lista en memoria temporal para sostener el pedido con múltiples calibres
+    // Lista dinámica en memoria para sostener los calibres antes del guardado oficial
     let listaCalibresPedidoActual = [];
 
     let registroPagosGlobalSimulado = [
@@ -240,12 +227,12 @@
         if(id === 'anillas') {
             listaCalibresPedidoActual = [];
             renderizarCarritoAnillas();
-            calcularMontoEInsignia();
+            calcularMontoLineaAnilla();
         }
     };
 
-    // 🧮 LÓGICA DE PRECIOS LOGÍSTICOS DE ANILLAS CON CONDICIONAL DE CALIBRES
-    window.calcularMontoEInsignia = function() {
+    // 🧮 CALCULAR COSTOS EN TIEMPO REAL SEGÚN EL REGLAMENTO DE DIÁMETROS
+    window.calcularMontoLineaAnilla = function() {
         const calibre = parseFloat(document.getElementById('anilla-calibre').value);
         const inicio = parseInt(document.getElementById('pago_anilla_inicio').value) || 0;
         const fin = parseInt(document.getElementById('pago_anilla_fin').value) || 0;
@@ -253,7 +240,7 @@
         let cantidad = (fin - inicio) + 1;
         if (cantidad < 0 || inicio <= 0 || fin <= 0) cantidad = 0;
 
-        // Regla solicitada: Hasta calibre 6.9 ($0.45) | Por encima de 7 ($0.72)
+        // Regla: Hasta 6.9mm costo $0.45 | A partir de 7.0mm costo $0.72
         const precioUnitario = (calibre <= 6.9) ? 0.45 : 0.72;
         const subtotal = cantidad * precioUnitario;
 
@@ -267,7 +254,7 @@
         const fin = parseInt(document.getElementById('pago_anilla_fin').value) || 0;
 
         if(inicio <= 0 || fin <= 0 || fin < inicio) {
-            alert("Por favor introduce un rango numérico válido (el número de fin debe ser mayor o igual al de inicio).");
+            alert("Rango numérico inconsistente. Por favor, corrígelo.");
             return;
         }
 
@@ -275,7 +262,6 @@
         const precioUnitario = (parseFloat(calibre) <= 6.9) ? 0.45 : 0.72;
         const subtotal = cantidad * precioUnitario;
 
-        // Insertar al arreglo dinámico
         listaCalibresPedidoActual.push({
             calibre: calibre + " mm",
             rango: `${inicio} - ${fin}`,
@@ -285,16 +271,16 @@
 
         renderizarCarritoAnillas();
         
-        // Resetear rangos para el siguiente calibre para evitar duplicados accidentales
+        // Autocompletar rangos para agilizar el proceso del siguiente calibre
         document.getElementById('pago_anilla_inicio').value = fin + 1;
         document.getElementById('pago_anilla_fin').value = fin + 10;
-        window.calcularMontoEInsignia();
+        window.calcularMontoLineaAnilla();
     };
 
     function renderizarCarritoAnillas() {
         const tbody = document.getElementById('tbody-lista-anillas-solicitadas');
         if(listaCalibresPedidoActual.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">No has añadido calibres a este pedido.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">No has añadido calibres a este pedido.</td></tr>';
             document.getElementById('anilla-total-pedido-global').textContent = "$ 0.00 USD";
             return;
         }
@@ -309,22 +295,60 @@
                 <td style="text-align:center; color:#555;">${item.rango}</td>
                 <td style="text-align:center;">${item.cantidad}</td>
                 <td style="text-align:right; font-weight:bold; color:#1565C0;">$ ${item.subtotal.toFixed(2)}</td>
+                <td style="text-align:center;"><button onclick="eliminarFilaCarritoAnillas(${index})" style="background:none; border:none; cursor:pointer; font-size:1rem;">🗑️</button></td>
             </tr>`;
         });
 
         document.getElementById('anilla-total-pedido-global').textContent = `$ ${totalAcumulado.toFixed(2)} USD`;
     }
 
-    window.enviarSolicitudAnillasSupabase = function() {
+    window.eliminarFilaCarritoAnillas = function(index) {
+        listaCalibresPedidoActual.splice(index, 1);
+        renderizarCarritoAnillas();
+    };
+
+    // 💾 FUNCIÓN INTEGRADA CON TRANSACCIÓN HISTÓRICA REAL EN SUPABASE
+    window.enviarSolicitudAnillasSupabase = async function() {
         if(listaCalibresPedidoActual.length === 0) {
             alert("Debes añadir al menos un calibre a la lista antes de procesar el pedido.");
             return;
         }
         
-        // Simulación exitosa de la transacción
-        alert(`¡Pedido de Anillas enviado con éxito!\n\nSe han registrado ${listaCalibresPedidoActual.length} calibres diferentes por un monto global de ${document.getElementById('anilla-total-pedido-global').textContent}.\n\nLa administración validará los rangos solicitados.`);
-        listaCalibresPedidoActual = [];
-        renderizarCarritoAnillas();
+        try {
+            const { data: { user } } = await clienteSupabase.auth.getUser();
+            const { data: socio } = await clienteSupabase.from('socios').select('nombre_completo, numero_cn').eq('id', user.id).single();
+            
+            const nombreSocio = socio ? socio.nombre_completo : user.email;
+            const cnSocio = socio ? socio.numero_cn : 'S/N';
+            const fechaPedido = new Date().toISOString().split('T')[0];
+
+            // Mapear el carrito a la estructura relacional de la tabla histórica
+            const filasAInsertar = listaCalibresPedidoActual.map(item => ({
+                socio_id: user.id,
+                socio_nombre: nombreSocio,
+                socio_cn: cnSocio,
+                calibre: item.calibre,
+                rango: item.rango,
+                cantidad: parseInt(item.cantidad),
+                subtotal: parseFloat(item.subtotal),
+                fecha: fechaPedido,
+                estado: 'Pendiente'
+            }));
+
+            const { error } = await clienteSupabase
+                .from('pedidos_anillas')
+                .insert(filasAInsertar);
+
+            if (error) throw error;
+
+            alert(`¡Pedido de Anillas guardado en el histórico con éxito!\nLa administración ha recibido tu solicitud colectiva.`);
+            
+            listaCalibresPedidoActual = [];
+            renderizarCarritoAnillas();
+
+        } catch (err) {
+            alert("Error al guardar el pedido: " + err.message);
+        }
     };
 
     async function cargarManuales() {
