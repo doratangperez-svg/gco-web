@@ -50,9 +50,30 @@
         .dato-linea .label { font-weight: bold; color: #555; }
         .dato-linea .valor { color: #333; text-align: right; }
 
-        .tabla-mini { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 5px; }
-        .tabla-mini th { background-color: var(--color-principal); color: white; padding: 8px; text-align: left; font-size: 0.85rem; }
-        .tabla-mini td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+        /* 📊 ESTILOS OPTIMIZADOS PARA LA TABLA MINI */
+        .tabla-mini { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 5px; table-layout: fixed; }
+        .tabla-mini th { background-color: var(--color-principal); color: white; padding: 10px 6px; text-align: center; font-size: 0.82rem; font-weight: 600; }
+        .tabla-mini td { padding: 12px 6px; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; }
+        
+        /* Configuración adaptativa de anchos de columnas */
+        .tabla-mini th:nth-child(1), .tabla-mini td:nth-child(1) { width: 18%; } /* Fecha */
+        .tabla-mini th:nth-child(2), .tabla-mini td:nth-child(2) { width: 20%; } /* Modalidad */
+        .tabla-mini th:nth-child(3), .tabla-mini td:nth-child(3) { width: 18%; text-align: right; } /* Monto */
+        .tabla-mini th:nth-child(4), .tabla-mini td:nth-child(4) { width: 16%; } /* Detalle */
+        .tabla-mini th:nth-child(5), .tabla-mini td:nth-child(5) { width: 28%; } /* Próximo Vencimiento */
+
+        /* Estilo premium específico para el badge de vencimiento */
+        .badge-vencimiento {
+            color: #d32f2f; 
+            font-weight: bold; 
+            background-color: #ffebee; 
+            padding: 4px 6px; 
+            border-radius: 6px; 
+            font-size: 0.78rem; 
+            display: inline-block;
+            white-space: nowrap;
+            border: 1px solid #ffcdd2;
+        }
     </style>
 </head>
 <body>
@@ -111,7 +132,7 @@
                     <h3>💵 Mi Estado de Cuenta</h3>
                     <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom:15px;">Registro de cuotas institucionales computadas de forma manual por la administración (Mensual S/. 10 / Anual S/. 120).</p>
                     
-                    <div style="max-height: 190px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px;">
+                    <div style="max-height: 210px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
                         <table class="tabla-mini">
                             <thead>
                                 <tr>
@@ -119,7 +140,8 @@
                                     <th>Modalidad</th>
                                     <th>Monto</th>
                                     <th>Detalle</th>
-                                    <th>📅 Próximo Vencimiento</th> </tr>
+                                    <th>📅 Próximo Vencimiento</th>
+                                </tr>
                             </thead>
                             <tbody id="socio-tabla-pagos">
                                 <tr><td colspan="5" style="text-align:center; color:#999; padding: 15px;">Sincronizando aportes...</td></tr>
@@ -161,7 +183,6 @@
     const CORREO_ADMIN = "dtangperez77@gmail.com";
     let directorioSociosMemoria = [];
 
-    // DATA BASE ESTÁTICA PARA LA CONSULTA CRUZADA SIMULADA DEL SOCIO
     let registroPagosGlobalSimulado = [
         { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape" },
         { fecha: "2026-06-30", socio: "Jose Javier Valero Rojas", modalidad: "Anual", monto: 120, nota: "Yape" }
@@ -189,7 +210,6 @@
         }).join('');
     }
 
-    // 🧮 FUNCIÓN DE CÁLCULO: PROYECTA EL PRÓXIMO VENCIMIENTO SEGÚN LA MODALIDAD
     function calcularVencimientoSocio(fechaBase, modalidad) {
         let fecha = new Date(fechaBase + "T12:00:00");
         if (modalidad === "Mensual") {
@@ -198,11 +218,10 @@
             fecha.setFullYear(fecha.getFullYear() + 1);
         }
         const partes = fecha.toISOString().split('T')[0].split('-');
-        return `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`; // Devuelve DD/MM/YYYY
+        return `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`;
     }
 
     function renderizarPerfilYEstadoDeCuenta(datosSocio) {
-        // Pintar ficha de filiación oficial
         document.getElementById('socio-cn').textContent = datosSocio.numero_cn || 'No asignado aún';
         document.getElementById('socio-nombre').textContent = datosSocio.nombre_completo || 'Sin especificar';
         document.getElementById('socio-correo').textContent = datosSocio.correo_electronico || 'Sin especificar';
@@ -216,7 +235,6 @@
         else if (datosSocio.estado_socio === 'Inactivo') badge.classList.add('inactivo');
         else badge.classList.add('pendiente');
 
-        // Filtrar y renderizar extracto bancario individual
         const tbodyPagos = document.getElementById('socio-tabla-pagos');
         const misPagos = registroPagosGlobalSimulado.filter(p => p.socio.trim().toLowerCase() === datosSocio.nombre_completo.trim().toLowerCase());
 
@@ -235,15 +253,14 @@
             const partes = p.fecha.split('-');
             const fUI = partes.length === 3 ? `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}` : p.fecha;
 
-            // Invocar cálculo del vencimiento en vivo
             const vencimientoUI = calcularVencimientoSocio(p.fecha, p.modalidad);
 
             tbodyPagos.innerHTML += `<tr>
                 <td>${fUI}</td>
                 <td><span class="etiqueta activo" style="font-size:0.75rem;">${p.modalidad}</span></td>
-                <td><strong>S/. ${p.monto}</strong></td>
+                <td style="text-align: right;"><strong>S/. ${p.monto}</strong></td>
                 <td style="color:#666; font-size:0.85rem;">${p.nota}</td>
-                <td><span style="color:#d32f2f; font-weight:bold; background-color:#ffebee; padding:4px 8px; border-radius:4px; font-size:0.85rem;">📅 ${vencimientoUI}</span></td>
+                <td><span class="badge-vencimiento">📅 ${vencimientoUI}</span></td>
             </tr>`;
         });
 
@@ -259,7 +276,6 @@
         }
 
         try {
-            // 2. SISTEMA DE PROTECCIÓN DE RUTA DE SOCIO
             const { data: socio, error: errorSocio } = await clienteSupabase
                 .from('socios')
                 .select('*') 
@@ -277,7 +293,6 @@
                 return;
             }
 
-            // 3. Pintamos la interfaz con normalidad e inyectamos el perfil de lectura
             document.getElementById('nombre-usuario-display').textContent = 'Socio: ' + (socio.nombre_completo || user.email);
             renderizarPerfilYEstadoDeCuenta(socio); 
             
@@ -285,7 +300,6 @@
                 document.getElementById('btn-ir-admin').style.display = 'inline-block';
             }
             
-            // Cargar el directorio general de socios públicos
             const { data: directorio, error: errorDir } = await clienteSupabase.from('socios').select('*');
             if (!errorDir && directorio) {
                 directorioSociosMemoria = directorio;
