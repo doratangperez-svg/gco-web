@@ -387,10 +387,11 @@
             const cnSocio = socioDatos ? socioDatos.numero_cn : 'S/N';
             const fechaPedido = new Date().toISOString().split('T')[0];
 
+            // 🌟 Forzamos a que guarde en las columnas nativas de tu Supabase
             const filasAInsertar = listaCalibresPedidoActual.map(item => ({
                 socio_id: user.id,
-                socio_nombre: nombreSocio,       
-                socio_cn: cnSocio,              
+                socio: nombreSocio,       
+                cn: cnSocio,              
                 calibre: item.calibre,
                 rango: item.rango,
                 cantidad: parseInt(item.cantidad),
@@ -409,13 +410,12 @@
             
             listaCalibresPedidoActual = [];
             renderizarCarritoAnillas();
-            cargarHistorialAnillasSocio();
+            if (typeof cargarHistorialAnillasSocio === 'function') cargarHistorialAnillasSocio();
 
         } catch (err) {
             alert("Error al guardar el pedido: " + err.message);
         }
     };
-
     async function cargarManuales() {
         const contenedor = document.getElementById('lista-manuales');
         const { data, error } = await clienteSupabase.storage.from('archivos_gco').list('manuales');
