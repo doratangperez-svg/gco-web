@@ -101,7 +101,6 @@
         .modal-cabecera h3 { margin: 0; color: var(--color-admin); }
         .btn-cerrar-x { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
 
-        /* Estilos de Tabla Mini reutilizados */
         .tabla-mini { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 5px; }
         .tabla-mini th { background-color: var(--color-admin); color: white; padding: 10px 6px; text-align: center; font-size: 0.82rem; font-weight: 600; }
         .tabla-mini td { padding: 12px 6px; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; }
@@ -133,6 +132,7 @@
 
         <main class="content-area">
             
+            <!-- MÓDULO ALTA DE SOCIOS -->
             <div id="modulo-socios">
                 <div class="tarjeta">
                     <h2 id="titulo-formulario-socio">Gestionar Datos de Socio Oficial</h2>
@@ -197,6 +197,7 @@
                 </div>
             </div>
 
+            <!-- MÓDULO DE CONTROL DE PAGOS GLOBAL -->
             <div id="modulo-pagos" style="display: none;">
                 <div class="grid-kpis-pagos">
                     <div class="tarjeta-kpi kpi-recaudado">
@@ -259,12 +260,14 @@
                                 </tr>
                             </thead>
                             <tbody id="tabla-historial-pagos">
-                                </tbody>
+                                <!-- Renderizado dinámico -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
+            <!-- 💍 MÓDULO ADMINISTRADOR: CONSOLIDADO DE ANILLAS -->
             <div id="modulo-consolidado-anillas" style="display: none;">
                 <div class="tarjeta">
                     <h2>📊 Consolidado General de Pedidos de Anillas</h2>
@@ -323,6 +326,7 @@
                 </div>
             </div>
 
+            <!-- MÓDULO MANUALES -->
             <div id="modulo-manuales" style="display: none;">
                 <div class="tarjeta">
                     <h2>📚 Subir Nuevo Reglamento o Manual</h2>
@@ -338,6 +342,7 @@
                 </div>
             </div>
 
+            <!-- MÓDULO FOTOS -->
             <div id="modulo-fotos" style="display: none;">
                 <div class="tarjeta">
                     <h2>📷 Subir Fotografía de Ejemplar</h2>
@@ -356,6 +361,7 @@
         </main>
     </div>
 
+    <!-- VENTANA MODAL FLOTANTE DE GESTIÓN DE PAGOS INDIVIDUALES -->
     <div id="modal-pagos-usuario" class="capa-modal">
         <div class="ventana-modal">
             <div class="modal-cabecera">
@@ -681,7 +687,7 @@
             if (error) alert("Error: " + error.message); else { alert("¡Imagen subida!"); document.getElementById('form-foto').reset(); }
         });
 
-        // 🔍 LÓGICA DEL CONSOLIDADO DE ANILLAS DESDE LA TABLA 'SOLICITUDES_ANILLAS'
+        // 🔍 1. CARGAR Y PROCESAR LAS SOLICITUDES DESDE SUPABASE
         async function cargarConsolidadoAnillas() {
             try {
                 let query = clienteSupabase.from('solicitudes_anillas').select('*');
@@ -700,6 +706,7 @@
             }
         }
 
+        // 📊 2. CALCULAR EL RESUMEN DE PRODUCCIÓN (AGRUPACIÓN CORRECTA)
         function renderizarResumenMatrizPorCalibre(pedidos) {
             const tbodyResumen = document.getElementById('tbody-anillas-totales-calibre');
             if (!tbodyResumen) return;
@@ -730,33 +737,34 @@
             }
         }
 
+        // ⏳ 3. RENDERIZAR LA TABLA DE DESGLOSE HISTÓRICO CON LAS COLUMNAS CORRECTAS ('cn' y 'socio')
         function renderizarHistoricoDetalladoAdmin(pedidos) {
-        const tbodyDetalle = document.getElementById('tbody-anillas-historico-detallado');
-        if (!tbodyDetalle) return;
+            const tbodyDetalle = document.getElementById('tbody-anillas-historico-detallado');
+            if (!tbodyDetalle) return;
 
-        if (!pedidos || pedidos.length === 0) {
-            tbodyDetalle.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#999; padding:20px;">No se encontraron registros bajo este filtro.</td></tr>';
-            return;
+            if (!pedidos || pedidos.length === 0) {
+                tbodyDetalle.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#999; padding:20px;">No se encontraron registros bajo este filtro.</td></tr>';
+                return;
+            }
+
+            tbodyDetalle.innerHTML = pedidos.map(p => {
+                const claseBadge = p.estado === 'Consolidado' ? 'activo' : 'pendiente';
+                const partes = p.fecha ? p.fecha.split('-') : [];
+                const fechaUI = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : p.fecha;
+
+                return `<tr>
+                    <td style="padding:10px; text-align:center;">${fechaUI}</td>
+                    <td style="padding:10px; text-align:center;"><code>${p.cn || 'S/N'}</code></td>
+                    <td style="padding:10px; text-align:left;"><strong>${p.socio || 'Sin Nombre'}</strong></td>
+                    <td style="padding:10px; text-align:center;"><b>${p.calibre}</b></td>
+                    <td style="padding:10px; text-align:center;"><span style="background:#eee; padding:2px 6px; border-radius:4px;">${p.rango}</span></td>
+                    <td style="padding:10px; text-align:center;">${p.cantidad} un.</td>
+                    <td style="padding:10px; text-align:right; font-weight:bold;">$ ${parseFloat(p.subtotal).toFixed(2)}</td>
+                    <td style="padding:10px; text-align:center;"><span class="etiqueta ${claseBadge}">${p.estado}</span></td>
+                </tr>`;
+            }).join('');
         }
 
-        tbodyDetalle.innerHTML = pedidos.map(p => {
-            const claseBadge = p.estado === 'Consolidado' ? 'activo' : 'pendiente';
-            const partes = p.fecha ? p.fecha.split('-') : [];
-            const fechaUI = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : p.fecha;
-
-            // 🌟 Cambiado a p.cn y p.socio para que lea tus columnas reales de Supabase
-            return `<tr>
-                <td style="padding:10px; text-align:center;">${fechaUI}</td>
-                <td style="padding:10px; text-align:center;"><code>${p.cn || 'S/N'}</code></td>
-                <td style="padding:10px; text-align:left;">${p.socio || 'Desconocido'}</td>
-                <td style="padding:10px; text-align:center;"><b>${p.calibre}</b></td>
-                <td style="padding:10px; text-align:center;"><span style="background:#eee; padding:2px 6px; border-radius:4px;">${p.rango}</span></td>
-                <td style="padding:10px; text-align:center;">${p.cantidad} un.</td>
-                <td style="padding:10px; text-align:right; font-weight:bold;">$ ${parseFloat(p.subtotal).toFixed(2)}</td>
-                <td style="padding:10px; text-align:center;"><span class="etiqueta ${claseBadge}">${p.estado}</span></td>
-            </tr>`;
-        }).join('');
-    }
         window.aceptarLoteComoConsolidado = async function() {
             if (!confirm("¿Estás seguro de que deseas aceptar este lote?\n\nEsta acción cambiará el estado de todas las solicitudes 'Pendientes' a 'Consolidado'.")) return;
 
