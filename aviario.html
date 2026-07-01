@@ -69,25 +69,14 @@
 <div class="main-layout">
     <aside class="sidebar">
         <ul style="list-style:none; padding:0; margin:0;">
-            <li><a class="nav-link active" onclick="cambiarModulo(this, 'consultor')">🔍 Consultor de Socios</a></li>
-            <li><a class="nav-link" onclick="cambiarModulo(this, 'cuenta')">📋 Mi Cuenta Oficial</a></li>
+            <li><a class="nav-link active" onclick="cambiarModulo(this, 'cuenta')">📋 Mi Cuenta Oficial</a></li>
+            <li><a class="nav-link" onclick="cambiarModulo(this, 'consultor')">🔍 Consultor de Socios</a></li>
             <li><a class="nav-link" onclick="cambiarModulo(this, 'manuales')">📚 Biblioteca de Manuales</a></li>
         </ul>
     </aside>
 
     <main>
-        <div id="modulo-consultor" class="modulo-seccion">
-            <div class="tarjeta">
-                <h2>🔍 Consultor de Socios</h2>
-                <input type="text" id="buscador-socios" placeholder="Buscar por nombre o número CN..." onkeyup="filtrarDirectorio()" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
-                <table>
-                    <thead><tr><th>Número CN</th><th>Nombre</th><th>Estado</th></tr></thead>
-                    <tbody id="tabla-socios-body"><tr><td colspan="3">Cargando datos...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="modulo-cuenta" class="modulo-seccion" style="display: none;">
+        <div id="modulo-cuenta" class="modulo-seccion">
             <div class="grid-perfil-pagos">
                 
                 <div class="tarjeta-socio">
@@ -130,10 +119,10 @@
                                     <th>Modalidad</th>
                                     <th>Monto</th>
                                     <th>Detalle</th>
-                                </tr>
+                                    <th>📅 Próximo Vencimiento</th> </tr>
                             </thead>
                             <tbody id="socio-tabla-pagos">
-                                <tr><td colspan="4" style="text-align:center; color:#999; padding: 15px;">Sincronizando aportes...</td></tr>
+                                <tr><td colspan="5" style="text-align:center; color:#999; padding: 15px;">Sincronizando aportes...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -143,6 +132,17 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <div id="modulo-consultor" class="modulo-seccion" style="display: none;">
+            <div class="tarjeta">
+                <h2>🔍 Consultor de Socios</h2>
+                <input type="text" id="buscador-socios" placeholder="Buscar por nombre o número CN..." onkeyup="filtrarDirectorio()" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
+                <table>
+                    <thead><tr><th>Número CN</th><th>Nombre</th><th>Estado</th></tr></thead>
+                    <tbody id="tabla-socios-body"><tr><td colspan="3">Cargando datos...</td></tr></tbody>
+                </table>
             </div>
         </div>
 
@@ -161,7 +161,7 @@
     const CORREO_ADMIN = "dtangperez77@gmail.com";
     let directorioSociosMemoria = [];
 
-    // DATA BASE ESTÁTICA PARA LA CONSULTA CRUZADA SIMULADA DEL SOCIE
+    // DATA BASE ESTÁTICA PARA LA CONSULTA CRUZADA SIMULADA DEL SOCIO
     let registroPagosGlobalSimulado = [
         { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape" },
         { fecha: "2026-06-30", socio: "Jose Javier Valero Rojas", modalidad: "Anual", monto: 120, nota: "Yape" }
@@ -189,7 +189,18 @@
         }).join('');
     }
 
-    // 🖥️ NUEVA FUNCIÓN EXTRACTORA DE PERFIL COMPATIBLE CON SUPABASE
+    // 🧮 FUNCIÓN DE CÁLCULO: PROYECTA EL PRÓXIMO VENCIMIENTO SEGÚN LA MODALIDAD
+    function calcularVencimientoSocio(fechaBase, modalidad) {
+        let fecha = new Date(fechaBase + "T12:00:00");
+        if (modalidad === "Mensual") {
+            fecha.setMonth(fecha.getMonth() + 1);
+        } else if (modalidad === "Anual") {
+            fecha.setFullYear(fecha.getFullYear() + 1);
+        }
+        const partes = fecha.toISOString().split('T')[0].split('-');
+        return `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`; // Devuelve DD/MM/YYYY
+    }
+
     function renderizarPerfilYEstadoDeCuenta(datosSocio) {
         // Pintar ficha de filiación oficial
         document.getElementById('socio-cn').textContent = datosSocio.numero_cn || 'No asignado aún';
@@ -210,7 +221,7 @@
         const misPagos = registroPagosGlobalSimulado.filter(p => p.socio.trim().toLowerCase() === datosSocio.nombre_completo.trim().toLowerCase());
 
         if(misPagos.length === 0) {
-            tbodyPagos.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999; padding:15px;">No registras aportes en este ciclo.</td></tr>';
+            tbodyPagos.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999; padding:15px;">No registras aportes en este ciclo.</td></tr>';
             document.getElementById('socio-total-aportado').textContent = "S/. 0.00";
             return;
         }
@@ -224,11 +235,15 @@
             const partes = p.fecha.split('-');
             const fUI = partes.length === 3 ? `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}` : p.fecha;
 
+            // Invocar cálculo del vencimiento en vivo
+            const vencimientoUI = calcularVencimientoSocio(p.fecha, p.modalidad);
+
             tbodyPagos.innerHTML += `<tr>
                 <td>${fUI}</td>
                 <td><span class="etiqueta activo" style="font-size:0.75rem;">${p.modalidad}</span></td>
                 <td><strong>S/. ${p.monto}</strong></td>
                 <td style="color:#666; font-size:0.85rem;">${p.nota}</td>
+                <td><span style="color:#d32f2f; font-weight:bold; background-color:#ffebee; padding:4px 8px; border-radius:4px; font-size:0.85rem;">📅 ${vencimientoUI}</span></td>
             </tr>`;
         });
 
@@ -247,7 +262,7 @@
             // 2. SISTEMA DE PROTECCIÓN DE RUTA DE SOCIO
             const { data: socio, error: errorSocio } = await clienteSupabase
                 .from('socios')
-                .select('*') // Extraemos todas las columnas relacionales para rellenar la ficha
+                .select('*') 
                 .eq('id', user.id)
                 .single();
 
@@ -264,7 +279,7 @@
 
             // 3. Pintamos la interfaz con normalidad e inyectamos el perfil de lectura
             document.getElementById('nombre-usuario-display').textContent = 'Socio: ' + (socio.nombre_completo || user.email);
-            renderizarPerfilYEstadoDeCuenta(socio); // 👈 Anclado automático de datos
+            renderizarPerfilYEstadoDeCuenta(socio); 
             
             if (user.email.toLowerCase().trim() === CORREO_ADMIN.toLowerCase().trim()) {
                 document.getElementById('btn-ir-admin').style.display = 'inline-block';
