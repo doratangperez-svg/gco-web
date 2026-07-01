@@ -38,7 +38,7 @@
         .pendiente { background-color: #FF9800; }
 
         .grid-perfil-pagos { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-top: 15px; }
-        .tarjeta-socio { background: white; padding: 25px; border-radius: 12px; border: 1px solid #eee; }
+        .tarjeta-socio { background: white; padding: 25px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
         .tarjeta-socio h3 { color: var(--color-principal); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
         
         .dato-linea { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f9f9f9; font-size: 0.95rem; }
@@ -56,8 +56,8 @@
         /* 📋 FORMULARIOS DE PEDIDO DE ANILLAS */
         .form-group-anilla { display: flex; flex-direction: column; margin-bottom: 15px; }
         .form-group-anilla label { font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; color: #444; }
-        .form-group-anilla select, .form-group-anilla input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; }
-        .btn-agregar-lista { background-color: #1565C0; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .form-group-anilla select, .form-group-anilla input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; font-family: inherit; box-sizing: border-box; width: 100%; }
+        .btn-agregar-lista { background-color: #1565C0; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
         .btn-agregar-lista:hover { background-color: #0d47a1; }
     </style>
 </head>
@@ -86,27 +86,31 @@
         <div id="modulo-cuenta" class="modulo-seccion">
             <div class="grid-perfil-pagos">
                 <div class="tarjeta-socio">
-                    <h3>📋 Mis Datos Oficiales</h3>
-                    <div class="dato-linea"><span class="label">Número CN:</span><span class="valor"><strong id="socio-cn" style="color:#1565C0;">Cargando...</strong></span></div>
-                    <div class="dato-linea"><span class="label">Nombre Completo:</span><span class="valor" id="socio-nombre">Cargando...</span></div>
-                    <div class="dato-linea"><span class="label">Correo Electrónico:</span><span class="valor" id="socio-correo">Cargando...</span></div>
-                    <div class="dato-linea"><span class="label">Teléfono Inscrito:</span><span class="valor" id="socio-telefono">Cargando...</span></div>
-                    <div class="dato-linea"><span class="label">Ubicación / Dirección:</span><span class="valor" id="socio-direccion">Cargando...</span></div>
-                    <div class="dato-linea" style="border:none; padding-bottom:0;"><span class="label">Estado de Afiliación:</span><span id="socio-estado-badge" class="etiqueta pendiente">Verificando...</span></div>
+                    <div>
+                        <h3>📋 Mis Datos Oficiales</h3>
+                        <div class="dato-linea"><span class="label">Número CN:</span><span class="valor"><strong id="socio-cn" style="color:#1565C0;">Cargando...</strong></span></div>
+                        <div class="dato-linea"><span class="label">Nombre Completo:</span><span class="valor" id="socio-nombre">Cargando...</span></div>
+                        <div class="dato-linea"><span class="label">Correo Electrónico:</span><span class="valor" id="socio-correo">Cargando...</span></div>
+                        <div class="dato-linea"><span class="label">Teléfono Inscrito:</span><span class="valor" id="socio-telefono">Cargando...</span></div>
+                        <div class="dato-linea"><span class="label">Ubicación / Dirección:</span><span class="valor" id="socio-direccion">Cargando...</span></div>
+                    </div>
+                    <div class="dato-linea" style="border:none; padding-bottom:0; margin-top: 15px;"><span class="label">Estado de Afiliación:</span><span id="socio-estado-badge" class="etiqueta pendiente">Verificando...</span></div>
                 </div>
 
                 <div class="tarjeta-socio">
-                    <h3>💵 Mi Estado de Cuenta</h3>
-                    <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom:15px;">Registro de cuotas institucionales computadas de forma manual por la administración.</p>
-                    <div style="max-height: 210px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
-                        <table class="tabla-mini">
-                            <thead>
-                                <tr><th>Fecha</th><th>Modalidad</th><th>Monto</th><th>Detalle</th><th>📅 Próximo Vencimiento</th></tr>
-                            </thead>
-                            <tbody id="socio-tabla-pagos">
-                                <tr><td colspan="5" style="text-align:center; color:#999; padding: 15px;">Sincronizando aportes...</td></tr>
-                            </tbody>
-                        </table>
+                    <div>
+                        <h3>💵 Mi Estado de Cuenta</h3>
+                        <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom:15px;">Registro de cuotas institucionales computadas de forma manual por la administración.</p>
+                        <div style="max-height: 210px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+                            <table class="tabla-mini">
+                                <thead>
+                                    <tr><th>Fecha</th><th>Modalidad</th><th>Monto</th><th>Detalle</th><th>📅 Próximo Vencimiento</th></tr>
+                                </thead>
+                                <tbody id="socio-tabla-pagos">
+                                    <tr><td colspan="5" style="text-align:center; color:#999; padding: 15px;">Sincronizando aportes...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div style="background-color: #e8f5e9; padding: 12px; border-radius: 6px; margin-top: 15px; font-size: 0.95rem; color: #1b5e20; font-weight: 600; text-align: center; border: 1px solid #c8e6c9;">
                         Total Cuotas Aportadas: <span id="socio-total-aportado" style="font-size:1.1rem;">S/. 0.00</span>
@@ -118,46 +122,48 @@
         <div id="modulo-anillas" class="modulo-seccion" style="display: none;">
             <div class="grid-perfil-pagos">
                 <div class="tarjeta-socio">
-                    <h3>💍 Configurar Calibre</h3>
-                    <p style="color:#666; font-size:0.85rem; margin-top:0;">Selecciona el diámetro y rango. <br><b>Precios:</b> Hasta 6.9mm: $0.45 | Desde 7.0mm: $0.72</p>
-                    
-                    <div class="form-group-anilla">
-                        <label>Calibre del Anillo *</label>
-                        <select id="anilla-calibre" onchange="calcularMontoLineaAnilla()">
-                            <option value="2.5">2.5 mm (Exóticos / Finches) - $0.45</option>
-                            <option value="3.0">3.0 mm (Canarios de color) - $0.45</option>
-                            <option value="4.0">4.0 mm (Agapornis / Periquitos) - $0.45</option>
-                            <option value="4.5">4.5 mm (Agapornis Fischer / Personatus) - $0.45</option>
-                            <option value="5.5">5.5 mm (Ninfas / Cotorras) - $0.45</option>
-                            <option value="7.0">7.0 mm (Palomas / Loros medianos) - $0.72</option>
-                            <option value="8.0">8.0 mm (Guacamayos menores) - $0.72</option>
-                        </select>
-                    </div>
-                    
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div>
+                        <h3>💍 Configurar Calibre</h3>
+                        <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom: 15px;">Selecciona el diámetro y rango. <br><b>Precios:</b> Hasta 6.9mm: $0.45 | Desde 7.0mm: $0.72</p>
+                        
                         <div class="form-group-anilla">
-                            <label>Inicio Rango *</label>
-                            <input type="number" id="pago_anilla_inicio" value="1" min="1" oninput="calcularMontoLineaAnilla()">
+                            <label>Calibre del Anillo *</label>
+                            <select id="anilla-calibre" onchange="calcularMontoLineaAnilla()">
+                                <option value="2.5">2.5 mm (Exóticos / Finches) - $0.45</option>
+                                <option value="3.0">3.0 mm (Canarios de color) - $0.45</option>
+                                <option value="4.0">4.0 mm (Agapornis / Periquitos) - $0.45</option>
+                                <option value="4.5">4.5 mm (Agapornis Fischer / Personatus) - $0.45</option>
+                                <option value="5.5">5.5 mm (Ninfas / Cotorras) - $0.45</option>
+                                <option value="7.0">7.0 mm (Palomas / Loros med.) - $0.72</option>
+                                <option value="8.0">8.0 mm (Guacamayos men.) - $0.72</option>
+                            </select>
                         </div>
-                        <div class="form-group-anilla">
-                            <label>Fin Rango *</label>
-                            <input type="number" id="pago_anilla_fin" value="10" min="1" oninput="calcularMontoLineaAnilla()">
+                        
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                            <div class="form-group-anilla">
+                                <label>Inicio Rango *</label>
+                                <input type="number" id="pago_anilla_inicio" value="1" min="1" oninput="calcularMontoLineaAnilla()">
+                            </div>
+                            <div class="form-group-anilla">
+                                <label>Fin Rango *</label>
+                                <input type="number" id="pago_anilla_fin" value="10" min="1" oninput="calcularMontoLineaAnilla()">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="dato-linea" style="margin-top: 10px;">
-                        <span class="label">Cantidad calculada:</span>
-                        <span class="valor" id="anilla-subtotal-cantidad" style="font-weight:bold;">10 unidades</span>
-                    </div>
-                    <div class="dato-linea" style="border:none; padding-bottom:0;">
-                        <span class="label">Subtotal Línea:</span>
-                        <span class="valor" id="anilla-subtotal-costo" style="font-weight:bold; color:#1565C0;">$ 4.50 USD</span>
+                        <div class="dato-linea" style="margin-top: 10px;">
+                            <span class="label">Cantidad calculada:</span>
+                            <span class="valor" id="anilla-subtotal-cantidad" style="font-weight:bold;">10 unidades</span>
+                        </div>
+                        <div class="dato-linea" style="border:none; padding-bottom:0;">
+                            <span class="label">Subtotal Línea:</span>
+                            <span class="valor" id="anilla-subtotal-costo" style="font-weight:bold; color:#1565C0;">$ 4.50 USD</span>
+                        </div>
                     </div>
                     
-                    <button class="btn-agregar-lista" onclick="agregarAnillaAListaPedido()" style="width:100%; margin-top:15px;">➕ Agregar este Calibre al Pedido</button>
+                    <button class="btn-agregar-lista" onclick="agregarAnillaAListaPedido()" style="width:100%; margin-top:20px;">➕ Agregar este Calibre al Pedido</button>
                 </div>
 
-                <div class="tarjeta-socio" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="tarjeta-socio">
                     <div>
                         <h3>🛒 Resumen de mi Pedido Actual</h3>
                         <p style="color:#666; font-size:0.85rem; margin-top:0;">Puedes incluir múltiples calibres antes de procesar el pedido definitivo.</p>
@@ -209,8 +215,6 @@
     const clienteSupabase = window.supabase.createClient('https://wbgjkkzputlnzpjcullm.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U');
     const CORREO_ADMIN = "dtangperez77@gmail.com";
     let directorioSociosMemoria = [];
-    
-    // Lista dinámica en memoria para sostener los calibres antes del guardado oficial
     let listaCalibresPedidoActual = [];
 
     let registroPagosGlobalSimulado = [
@@ -240,7 +244,6 @@
         let cantidad = (fin - inicio) + 1;
         if (cantidad < 0 || inicio <= 0 || fin <= 0) cantidad = 0;
 
-        // Regla: Hasta 6.9mm costo $0.45 | A partir de 7.0mm costo $0.72
         const precioUnitario = (calibre <= 6.9) ? 0.45 : 0.72;
         const subtotal = cantidad * precioUnitario;
 
@@ -271,7 +274,6 @@
 
         renderizarCarritoAnillas();
         
-        // Autocompletar rangos para agilizar el proceso del siguiente calibre
         document.getElementById('pago_anilla_inicio').value = fin + 1;
         document.getElementById('pago_anilla_fin').value = fin + 10;
         window.calcularMontoLineaAnilla();
@@ -307,7 +309,6 @@
         renderizarCarritoAnillas();
     };
 
-    // 💾 FUNCIÓN INTEGRADA CON TRANSACCIÓN HISTÓRICA REAL EN SUPABASE
     window.enviarSolicitudAnillasSupabase = async function() {
         if(listaCalibresPedidoActual.length === 0) {
             alert("Debes añadir al menos un calibre a la lista antes de procesar el pedido.");
@@ -322,7 +323,6 @@
             const cnSocio = socio ? socio.numero_cn : 'S/N';
             const fechaPedido = new Date().toISOString().split('T')[0];
 
-            // Mapear el carrito a la estructura relacional de la tabla histórica
             const filasAInsertar = listaCalibresPedidoActual.map(item => ({
                 socio_id: user.id,
                 socio_nombre: nombreSocio,
