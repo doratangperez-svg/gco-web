@@ -222,20 +222,7 @@
         { fecha: "2026-06-30", socio: "Jose Javier Valero Rojas", modalidad: "Anual", monto: 120, nota: "Yape" }
     ];
 
-    window.cambiarModulo = function(el, id) {
-        document.querySelectorAll('.modulo-seccion').forEach(s => s.style.display = 'none');
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        document.getElementById('modulo-' + id).style.display = 'block';
-        el.classList.add('active');
-        if(id === 'manuales') cargarManuales();
-        if(id === 'anillas') {
-            listaCalibresPedidoActual = [];
-            renderizarCarritoAnillas();
-            calcularMontoLineaAnilla();
-        }
-    };
-
-    // 🧮 CALCULAR COSTOS EN TIEMPO REAL SEGÚN EL REGLAMENTO DE DIÁMETROS
+    // 🧮 DECLARACIÓN PREVIA: CALCULAR COSTOS EN TIEMPO REAL SEGÚN EL REGLAMENTO DE DIÁMETROS
     window.calcularMontoLineaAnilla = function() {
         const calibre = parseFloat(document.getElementById('anilla-calibre').value);
         const inicio = parseInt(document.getElementById('pago_anilla_inicio').value) || 0;
@@ -249,6 +236,20 @@
 
         document.getElementById('anilla-subtotal-cantidad').textContent = `${cantidad} unidades`;
         document.getElementById('anilla-subtotal-costo').textContent = `$ ${subtotal.toFixed(2)} USD`;
+    };
+
+    window.cambiarModulo = function(el, id) {
+        document.querySelectorAll('.modulo-seccion').forEach(s => s.style.display = 'none');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.getElementById('modulo-' + id).style.display = 'block';
+        el.classList.add('active');
+        if(id === 'manuales') cargarManuales();
+        if(id === 'anillas') {
+            listaCalibresPedidoActual = [];
+            renderizarCarritoAnillas();
+            // Ahora la función ya existe y no dará error de "not defined"
+            window.calcularMontoLineaAnilla();
+        }
     };
 
     window.agregarAnillaAListaPedido = function() {
@@ -365,10 +366,10 @@
         }).join('');
     }
 
-    function calcularVencimientoSocio(fechaBase, modalidad) {
+    function calcularVencimientoSocio(fechaBase, modality) {
         let fecha = new Date(fechaBase + "T12:00:00");
-        if (modalidad === "Mensual") fecha.setMonth(fecha.getMonth() + 1);
-        else if (modalidad === "Anual") fecha.setFullYear(fecha.getFullYear() + 1);
+        if (modality === "Mensual") fecha.setMonth(fecha.getMonth() + 1);
+        else if (modality === "Anual") fecha.setFullYear(fecha.getFullYear() + 1);
         const partes = fecha.toISOString().split('T')[0].split('-');
         return `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`;
     }
