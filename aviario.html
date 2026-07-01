@@ -388,17 +388,18 @@
             const fechaPedido = new Date().toISOString().split('T')[0];
 
             // 🌟 Forzamos a que guarde en las columnas nativas de tu Supabase
-            const filasAInsertar = listaCalibresPedidoActual.map(item => ({
-                socio_id: user.id,
-                socio: nombreSocio,       
-                cn: cnSocio,              
-                calibre: item.calibre,
-                rango: item.rango,
-                cantidad: parseInt(item.cantidad),
-                subtotal: parseFloat(item.subtotal),
-                fecha: fechaPedido,
-                estado: 'Pendiente'
-            }));
+            // Asegúrate de que en aviario.html esté exactamente así redactado:
+const filasAInsertar = listaCalibresPedidoActual.map(item => ({
+    socio_id: user.id,
+    socio: nombreSocio,       
+    cn: cnSocio,              
+    calibre: item.calibre,
+    rango: item.rango,
+    cantidad: parseInt(item.cantidad),
+    subtotal: parseFloat(item.subtotal),
+    fecha: fechaPedido,
+    estado: 'Pendiente' // 🌟 Siempre con mayúscula inicial
+}));
 
             const { error } = await clienteSupabase
                 .from('solicitudes_anillas') 
