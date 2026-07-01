@@ -18,7 +18,7 @@
         .main-layout { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 280px 1fr; gap: 30px; }
         .sidebar { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: fit-content; }
         
-        .nav-link { display: block; padding: 12px 15px; color: var(--color-texto); font-weight: 600; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; }
+        .nav-link { display: block; padding: 12px 15px; color: var(--color-texto); font-weight: 600; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; text-decoration: none; }
         .nav-link:hover, .nav-link.active { background-color: #e8f5e9; color: var(--color-principal); }
 
         .tarjeta { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -40,6 +40,19 @@
         .activo { background-color: #4CAF50; }
         .inactivo { background-color: #F44336; }
         .pendiente { background-color: #FF9800; }
+
+        /* 👤 ESTILOS ADICIONALES UI/UX PARA MI CUENTA Y ESTADO DE CUENTA */
+        .grid-perfil-pagos { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-top: 15px; }
+        .tarjeta-socio { background: white; padding: 25px; border-radius: 12px; border: 1px solid #eee; }
+        .tarjeta-socio h3 { color: var(--color-principal); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        
+        .dato-linea { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f9f9f9; font-size: 0.95rem; }
+        .dato-linea .label { font-weight: bold; color: #555; }
+        .dato-linea .valor { color: #333; text-align: right; }
+
+        .tabla-mini { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 5px; }
+        .tabla-mini th { background-color: var(--color-principal); color: white; padding: 8px; text-align: left; font-size: 0.85rem; }
+        .tabla-mini td { padding: 10px 8px; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -55,8 +68,9 @@
 
 <div class="main-layout">
     <aside class="sidebar">
-        <ul style="list-style:none; padding:0;">
+        <ul style="list-style:none; padding:0; margin:0;">
             <li><a class="nav-link active" onclick="cambiarModulo(this, 'consultor')">🔍 Consultor de Socios</a></li>
+            <li><a class="nav-link" onclick="cambiarModulo(this, 'cuenta')">📋 Mi Cuenta Oficial</a></li>
             <li><a class="nav-link" onclick="cambiarModulo(this, 'manuales')">📚 Biblioteca de Manuales</a></li>
         </ul>
     </aside>
@@ -70,6 +84,65 @@
                     <thead><tr><th>Número CN</th><th>Nombre</th><th>Estado</th></tr></thead>
                     <tbody id="tabla-socios-body"><tr><td colspan="3">Cargando datos...</td></tr></tbody>
                 </table>
+            </div>
+        </div>
+
+        <div id="modulo-cuenta" class="modulo-seccion" style="display: none;">
+            <div class="grid-perfil-pagos">
+                
+                <div class="tarjeta-socio">
+                    <h3>📋 Mis Datos Oficiales</h3>
+                    <div class="dato-linea">
+                        <span class="label">Número CN:</span>
+                        <span class="valor"><strong id="socio-cn" style="color:#1565C0;">Cargando...</strong></span>
+                    </div>
+                    <div class="dato-linea">
+                        <span class="label">Nombre Completo:</span>
+                        <span class="valor" id="socio-nombre">Cargando...</span>
+                    </div>
+                    <div class="dato-linea">
+                        <span class="label">Correo Electrónico:</span>
+                        <span class="valor" id="socio-correo">Cargando...</span>
+                    </div>
+                    <div class="dato-linea">
+                        <span class="label">Teléfono Inscrito:</span>
+                        <span class="valor" id="socio-telefono">Cargando...</span>
+                    </div>
+                    <div class="dato-linea">
+                        <span class="label">Ubicación / Dirección:</span>
+                        <span class="valor" id="socio-direccion">Cargando...</span>
+                    </div>
+                    <div class="dato-linea" style="border:none; padding-bottom:0;">
+                        <span class="label">Estado de Afiliación:</span>
+                        <span id="socio-estado-badge" class="etiqueta pendiente">Verificando...</span>
+                    </div>
+                </div>
+
+                <div class="tarjeta-socio">
+                    <h3>💵 Mi Estado de Cuenta</h3>
+                    <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom:15px;">Registro de cuotas institucionales computadas de forma manual por la administración (Mensual S/. 10 / Anual S/. 120).</p>
+                    
+                    <div style="max-height: 190px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px;">
+                        <table class="tabla-mini">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Modalidad</th>
+                                    <th>Monto</th>
+                                    <th>Detalle</th>
+                                </tr>
+                            </thead>
+                            <tbody id="socio-tabla-pagos">
+                                <tr><td colspan="4" style="text-align:center; color:#999; padding: 15px;">Sincronizando aportes...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="background-color: #e8f5e9; padding: 12px; border-radius: 6px; margin-top: 15px; font-size: 0.95rem; color: #1b5e20; font-weight: 600; text-align: center; border: 1px solid #c8e6c9;">
+                        Total Cuotas Aportadas: <span id="socio-total-aportado" style="font-size:1.1rem;">S/. 0.00</span>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -87,6 +160,12 @@
     const clienteSupabase = window.supabase.createClient('https://wbgjkkzputlnzpjcullm.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U');
     const CORREO_ADMIN = "dtangperez77@gmail.com";
     let directorioSociosMemoria = [];
+
+    // DATA BASE ESTÁTICA PARA LA CONSULTA CRUZADA SIMULADA DEL SOCIE
+    let registroPagosGlobalSimulado = [
+        { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape" },
+        { fecha: "2026-06-30", socio: "Jose Javier Valero Rojas", modalidad: "Anual", monto: 120, nota: "Yape" }
+    ];
 
     window.cambiarModulo = function(el, id) {
         document.querySelectorAll('.modulo-seccion').forEach(s => s.style.display = 'none');
@@ -110,8 +189,53 @@
         }).join('');
     }
 
+    // 🖥️ NUEVA FUNCIÓN EXTRACTORA DE PERFIL COMPATIBLE CON SUPABASE
+    function renderizarPerfilYEstadoDeCuenta(datosSocio) {
+        // Pintar ficha de filiación oficial
+        document.getElementById('socio-cn').textContent = datosSocio.numero_cn || 'No asignado aún';
+        document.getElementById('socio-nombre').textContent = datosSocio.nombre_completo || 'Sin especificar';
+        document.getElementById('socio-correo').textContent = datosSocio.correo_electronico || 'Sin especificar';
+        document.getElementById('socio-telefono').textContent = datosSocio.telefono || 'No registrado';
+        document.getElementById('socio-direccion').textContent = datosSocio.direccion || 'No registrada';
+        
+        const badge = document.getElementById('socio-estado-badge');
+        badge.textContent = datosSocio.estado_socio || 'Pendiente';
+        badge.className = 'etiqueta'; 
+        if (datosSocio.estado_socio === 'Activo') badge.classList.add('activo');
+        else if (datosSocio.estado_socio === 'Inactivo') badge.classList.add('inactivo');
+        else badge.classList.add('pendiente');
+
+        // Filtrar y renderizar extracto bancario individual
+        const tbodyPagos = document.getElementById('socio-tabla-pagos');
+        const misPagos = registroPagosGlobalSimulado.filter(p => p.socio.trim().toLowerCase() === datosSocio.nombre_completo.trim().toLowerCase());
+
+        if(misPagos.length === 0) {
+            tbodyPagos.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999; padding:15px;">No registras aportes en este ciclo.</td></tr>';
+            document.getElementById('socio-total-aportado').textContent = "S/. 0.00";
+            return;
+        }
+
+        tbodyPagos.innerHTML = '';
+        let sumaAcumulada = 0;
+        
+        misPagos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+        misPagos.forEach(p => {
+            sumaAcumulada += parseFloat(p.monto);
+            const partes = p.fecha.split('-');
+            const fUI = partes.length === 3 ? `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}` : p.fecha;
+
+            tbodyPagos.innerHTML += `<tr>
+                <td>${fUI}</td>
+                <td><span class="etiqueta activo" style="font-size:0.75rem;">${p.modalidad}</span></td>
+                <td><strong>S/. ${p.monto}</strong></td>
+                <td style="color:#666; font-size:0.85rem;">${p.nota}</td>
+            </tr>`;
+        });
+
+        document.getElementById('socio-total-aportado').textContent = `S/. ${sumaAcumulada.toFixed(2)}`;
+    }
+
     async function init() {
-        // 1. Obtenemos el usuario autenticado nativo
         const { data: { user }, error: errorAuth } = await clienteSupabase.auth.getUser();
         
         if (errorAuth || !user) {
@@ -120,14 +244,13 @@
         }
 
         try {
-            // 2. SISTEMA DE PROTECCIÓN DE RUTA DE SOCIO: Verificamos el estado en la tabla pública
+            // 2. SISTEMA DE PROTECCIÓN DE RUTA DE SOCIO
             const { data: socio, error: errorSocio } = await clienteSupabase
                 .from('socios')
-                .select('estado_socio, nombre_completo')
+                .select('*') // Extraemos todas las columnas relacionales para rellenar la ficha
                 .eq('id', user.id)
                 .single();
 
-            // Si no existe perfil en la tabla o su estado no es Activo, cerramos la sesión por seguridad
             if (errorSocio || !socio || socio.estado_socio === 'Pendiente' || socio.estado_socio === 'Inactivo') {
                 const mensaje = (!socio || socio.estado_socio === 'Pendiente') 
                     ? "Tu cuenta ha sido registrada con éxito, pero se encuentra en espera de la aprobación y asignación de CN por el administrador de GCO."
@@ -139,10 +262,10 @@
                 return;
             }
 
-            // 3. Si el socio está aprobado/activo, pintamos la interfaz con normalidad
+            // 3. Pintamos la interfaz con normalidad e inyectamos el perfil de lectura
             document.getElementById('nombre-usuario-display').textContent = 'Socio: ' + (socio.nombre_completo || user.email);
+            renderizarPerfilYEstadoDeCuenta(socio); // 👈 Anclado automático de datos
             
-            // Mostrar botón de admin si es el correo maestro
             if (user.email.toLowerCase().trim() === CORREO_ADMIN.toLowerCase().trim()) {
                 document.getElementById('btn-ir-admin').style.display = 'inline-block';
             }
