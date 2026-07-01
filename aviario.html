@@ -21,44 +21,59 @@
         .nav-link { display: block; padding: 12px 15px; color: var(--color-texto); font-weight: 600; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; text-decoration: none; }
         .nav-link:hover, .nav-link.active { background-color: #e8f5e9; color: var(--color-principal); }
 
-        .tarjeta { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .tarjeta { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         
+        /* DISEÑO DE MANUALES PREMIUM */
         .grid-manuales { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; margin-top: 25px; }
         .card-manual { background: white; padding: 25px; border-radius: 12px; text-align: center; border: 1px solid #eee; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .btn-descarga { display: inline-block; background: var(--color-principal); color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: 600; margin-top: 15px; border: none; cursor: pointer; }
+        .card-manual:hover { transform: translateY(-8px); border-color: var(--color-principal); box-shadow: 0 12px 20px rgba(0,0,0,0.1); }
+        .btn-descarga { display: inline-block; background: var(--color-principal); color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: 600; margin-top: 15px; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: var(--color-principal); color: white; padding: 12px; font-size: 0.85rem; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        th { background: var(--color-principal); color: white; padding: 12px; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
         
         .btn-admin { display: none; background-color: #1565C0; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-right: 15px; }
         
-        .etiqueta { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; color: white; text-transform: uppercase; }
+        /* ETIQUETAS DE ESTADO */
+        .etiqueta { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; color: white; text-transform: uppercase; }
         .activo { background-color: #4CAF50; }
+        .inactivo { background-color: #F44336; }
         .pendiente { background-color: #FF9800; }
 
+        /* 👤 ESTILOS ADICIONALES UI/UX PARA MI CUENTA Y ESTADO DE CUENTA */
         .grid-perfil-pagos { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-top: 15px; }
-        .tarjeta-socio { background: white; padding: 25px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
+        .tarjeta-socio { background: white; padding: 25px; border-radius: 12px; border: 1px solid #eee; }
         .tarjeta-socio h3 { color: var(--color-principal); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
         
         .dato-linea { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f9f9f9; font-size: 0.95rem; }
         .dato-linea .label { font-weight: bold; color: #555; }
         .dato-linea .valor { color: #333; text-align: right; }
 
+        /* 📊 ESTILOS OPTIMIZADOS PARA LA TABLA MINI */
         .tabla-mini { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 5px; table-layout: fixed; }
         .tabla-mini th { background-color: var(--color-principal); color: white; padding: 10px 6px; text-align: center; font-size: 0.82rem; font-weight: 600; }
         .tabla-mini td { padding: 12px 6px; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; }
+        
+        /* Configuración adaptativa de anchos de columnas */
+        .tabla-mini th:nth-child(1), .tabla-mini td:nth-child(1) { width: 18%; } /* Fecha */
+        .tabla-mini th:nth-child(2), .tabla-mini td:nth-child(2) { width: 20%; } /* Modalidad */
+        .tabla-mini th:nth-child(3), .tabla-mini td:nth-child(3) { width: 18%; text-align: right; } /* Monto */
+        .tabla-mini th:nth-child(4), .tabla-mini td:nth-child(4) { width: 16%; } /* Detalle */
+        .tabla-mini th:nth-child(5), .tabla-mini td:nth-child(5) { width: 28%; } /* Próximo Vencimiento */
 
+        /* Estilo premium específico para el badge de vencimiento */
         .badge-vencimiento {
-            color: #d32f2f; font-weight: bold; background-color: #ffebee; padding: 4px 6px; border-radius: 6px; font-size: 0.78rem; display: inline-block; white-space: nowrap; border: 1px solid #ffcdd2;
+            color: #d32f2f; 
+            font-weight: bold; 
+            background-color: #ffebee; 
+            padding: 4px 6px; 
+            border-radius: 6px; 
+            font-size: 0.78rem; 
+            display: inline-block;
+            white-space: nowrap;
+            border: 1px solid #ffcdd2;
         }
-
-        /* 📋 FORMULARIOS DE PEDIDO DE ANILLAS */
-        .form-group-anilla { display: flex; flex-direction: column; margin-bottom: 15px; }
-        .form-group-anilla label { font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; color: #444; }
-        .form-group-anilla select, .form-group-anilla input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; font-family: inherit; box-sizing: border-box; width: 100%; }
-        .btn-agregar-lista { background-color: #1565C0; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
-        .btn-agregar-lista:hover { background-color: #0d47a1; }
     </style>
 </head>
 <body>
@@ -78,118 +93,72 @@
             <li><a class="nav-link active" onclick="cambiarModulo(this, 'cuenta')">📋 Mi Cuenta Oficial</a></li>
             <li><a class="nav-link" onclick="cambiarModulo(this, 'consultor')">🔍 Consultor de Socios</a></li>
             <li><a class="nav-link" onclick="cambiarModulo(this, 'manuales')">📚 Biblioteca de Manuales</a></li>
-            <li><a class="nav-link" onclick="cambiarModulo(this, 'anillas')">💍 Solicitar Anillas</a></li>
         </ul>
     </aside>
 
     <main>
+        <!-- 📋 MÓDULO MI CUENTA OFICIAL (Visible por defecto) -->
         <div id="modulo-cuenta" class="modulo-seccion">
             <div class="grid-perfil-pagos">
+                
                 <div class="tarjeta-socio">
-                    <div>
-                        <h3>📋 Mis Datos Oficiales</h3>
-                        <div class="dato-linea"><span class="label">Número CN:</span><span class="valor"><strong id="socio-cn" style="color:#1565C0;">Cargando...</strong></span></div>
-                        <div class="dato-linea"><span class="label">Nombre Completo:</span><span class="valor" id="socio-nombre">Cargando...</span></div>
-                        <div class="dato-linea"><span class="label">Correo Electrónico:</span><span class="valor" id="socio-correo">Cargando...</span></div>
-                        <div class="dato-linea"><span class="label">Teléfono Inscrito:</span><span class="valor" id="socio-telefono">Cargando...</span></div>
-                        <div class="dato-linea"><span class="label">Ubicación / Dirección:</span><span class="valor" id="socio-direccion">Cargando...</span></div>
+                    <h3>📋 Mis Datos Oficiales</h3>
+                    <div class="dato-linea">
+                        <span class="label">Número CN:</span>
+                        <span class="valor"><strong id="socio-cn" style="color:#1565C0;">Cargando...</strong></span>
                     </div>
-                    <div class="dato-linea" style="border:none; padding-bottom:0; margin-top: 15px;"><span class="label">Estado de Afiliación:</span><span id="socio-estado-badge" class="etiqueta pendiente">Verificando...</span></div>
+                    <div class="dato-linea">
+                        <span class="label">Nombre Completo:</span>
+                        <span class="valor" id="socio-nombre">Cargando...</span>
+                    </div>
+                    <div class="dato-linea">
+                        <span class="label">Correo Electrónico:</span>
+                        <span class="valor" id="socio-correo">Cargando...</span>
+                    </div>
+                    <div class="dato-linea">
+                        <span class="label">Teléfono Inscrito:</span>
+                        <span class="valor" id="socio-telefono">Cargando...</span>
+                    </div>
+                    <div class="dato-linea">
+                        <span class="label">Ubicación / Dirección:</span>
+                        <span class="valor" id="socio-direccion">Cargando...</span>
+                    </div>
+                    <div class="dato-linea" style="border:none; padding-bottom:0;">
+                        <span class="label">Estado de Afiliación:</span>
+                        <span id="socio-estado-badge" class="etiqueta pendiente">Verificando...</span>
+                    </div>
                 </div>
 
                 <div class="tarjeta-socio">
-                    <div>
-                        <h3>💵 Mi Estado de Cuenta</h3>
-                        <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom:15px;">Registro de cuotas institucionales computadas de forma manual por la administración.</p>
-                        <div style="max-height: 210px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
-                            <table class="tabla-mini">
-                                <thead>
-                                    <tr><th>Fecha</th><th>Modalidad</th><th>Monto</th><th>Detalle</th><th>📅 Próximo Vencimiento</th></tr>
-                                </thead>
-                                <tbody id="socio-tabla-pagos">
-                                    <tr><td colspan="5" style="text-align:center; color:#999; padding: 15px;">Sincronizando aportes...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <h3>💵 Mi Estado de Cuenta</h3>
+                    <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom:15px;">Registro de cuotas institucionales computadas de forma manual por la administración (Mensual S/. 10 / Anual S/. 120).</p>
+                    
+                    <div style="max-height: 210px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+                        <table class="tabla-mini">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Modalidad</th>
+                                    <th>Monto</th>
+                                    <th>Detalle</th>
+                                    <th>📅 Próximo Vencimiento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="socio-tabla-pagos">
+                                <tr><td colspan="5" style="text-align:center; color:#999; padding: 15px;">Sincronizando aportes...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
+                    
                     <div style="background-color: #e8f5e9; padding: 12px; border-radius: 6px; margin-top: 15px; font-size: 0.95rem; color: #1b5e20; font-weight: 600; text-align: center; border: 1px solid #c8e6c9;">
                         Total Cuotas Aportadas: <span id="socio-total-aportado" style="font-size:1.1rem;">S/. 0.00</span>
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <div id="modulo-anillas" class="modulo-seccion" style="display: none;">
-            <div class="grid-perfil-pagos">
-                <div class="tarjeta-socio">
-                    <div>
-                        <h3>💍 Configurar Calibre</h3>
-                        <p style="color:#666; font-size:0.85rem; margin-top:0; margin-bottom: 15px;">Selecciona el diámetro y rango. <br><b>Precios:</b> Hasta 6.9mm: $0.45 | Desde 7.0mm: $0.72</p>
-                        
-                        <div class="form-group-anilla">
-                            <label>Calibre del Anillo *</label>
-                            <select id="anilla-calibre" onchange="calcularMontoLineaAnilla()">
-                                <option value="2.5">2.5 mm (Exóticos / Finches) - $0.45</option>
-                                <option value="3.0">3.0 mm (Canarios de color) - $0.45</option>
-                                <option value="4.0">4.0 mm (Agapornis / Periquitos) - $0.45</option>
-                                <option value="4.5">4.5 mm (Agapornis Fischer / Personatus) - $0.45</option>
-                                <option value="5.5">5.5 mm (Ninfas / Cotorras) - $0.45</option>
-                                <option value="7.0">7.0 mm (Palomas / Loros med.) - $0.72</option>
-                                <option value="8.0">8.0 mm (Guacamayos men.) - $0.72</option>
-                            </select>
-                        </div>
-                        
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                            <div class="form-group-anilla">
-                                <label>Inicio Rango *</label>
-                                <input type="number" id="pago_anilla_inicio" value="1" min="1" oninput="calcularMontoLineaAnilla()">
-                            </div>
-                            <div class="form-group-anilla">
-                                <label>Fin Rango *</label>
-                                <input type="number" id="pago_anilla_fin" value="10" min="1" oninput="calcularMontoLineaAnilla()">
-                            </div>
-                        </div>
-
-                        <div class="dato-linea" style="margin-top: 10px;">
-                            <span class="label">Cantidad calculada:</span>
-                            <span class="valor" id="anilla-subtotal-cantidad" style="font-weight:bold;">10 unidades</span>
-                        </div>
-                        <div class="dato-linea" style="border:none; padding-bottom:0;">
-                            <span class="label">Subtotal Línea:</span>
-                            <span class="valor" id="anilla-subtotal-costo" style="font-weight:bold; color:#1565C0;">$ 4.50 USD</span>
-                        </div>
-                    </div>
-                    
-                    <button class="btn-agregar-lista" onclick="agregarAnillaAListaPedido()" style="width:100%; margin-top:20px;">➕ Agregar este Calibre al Pedido</button>
-                </div>
-
-                <div class="tarjeta-socio">
-                    <div>
-                        <h3>🛒 Resumen de mi Pedido Actual</h3>
-                        <p style="color:#666; font-size:0.85rem; margin-top:0;">Puedes incluir múltiples calibres antes de procesar el pedido definitivo.</p>
-                        
-                        <div style="max-height: 180px; overflow-y: auto; border:1px solid #eee; border-radius:6px; margin-top:10px;">
-                            <table class="tabla-mini" style="margin-top:0; table-layout:auto;">
-                                <thead style="background-color:#555;">
-                                    <tr><th>Calibre</th><th>Rango</th><th>Cant.</th><th>Subtotal</th><th>Acción</th></tr>
-                                </thead>
-                                <tbody id="tbody-lista-anillas-solicitadas">
-                                    <tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">No has añadido calibres a este pedido.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div style="margin-top:20px;">
-                        <div style="background-color:#e3f2fd; padding:12px; border-radius:6px; font-size:1rem; color:#0d47a1; font-weight:bold; text-align:center; border:1px solid #bbdefb; margin-bottom:10px;">
-                            MONTO TOTAL DEL PEDIDO: <span id="anilla-total-pedido-global">$ 0.00 USD</span>
-                        </div>
-                        <button class="btn-descarga" onclick="enviarSolicitudAnillasSupabase()" style="width:100%; margin-top:0; border-radius:6px;">🚀 Guardar y Enviar Pedido Oficial</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <!-- 🔍 MÓDULO CONSULTOR DE SOCIOS (Oculto al inicio) -->
         <div id="modulo-consultor" class="modulo-seccion" style="display: none;">
             <div class="tarjeta">
                 <h2>🔍 Consultor de Socios</h2>
@@ -201,6 +170,7 @@
             </div>
         </div>
 
+        <!-- 📚 MÓDULO BIBLIOTECA DE MANUALES -->
         <div id="modulo-manuales" class="modulo-seccion" style="display: none;">
             <div class="tarjeta">
                 <h2>📚 Biblioteca de Manuales</h2>
@@ -215,28 +185,11 @@
     const clienteSupabase = window.supabase.createClient('https://wbgjkkzputlnzpjcullm.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U');
     const CORREO_ADMIN = "dtangperez77@gmail.com";
     let directorioSociosMemoria = [];
-    let listaCalibresPedidoActual = [];
 
     let registroPagosGlobalSimulado = [
         { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape" },
         { fecha: "2026-06-30", socio: "Jose Javier Valero Rojas", modalidad: "Anual", monto: 120, nota: "Yape" }
     ];
-
-    // 🧮 DECLARACIÓN PREVIA: CALCULAR COSTOS EN TIEMPO REAL SEGÚN EL REGLAMENTO DE DIÁMETROS
-    window.calcularMontoLineaAnilla = function() {
-        const calibre = parseFloat(document.getElementById('anilla-calibre').value);
-        const inicio = parseInt(document.getElementById('pago_anilla_inicio').value) || 0;
-        const fin = parseInt(document.getElementById('pago_anilla_fin').value) || 0;
-        
-        let cantidad = (fin - inicio) + 1;
-        if (cantidad < 0 || inicio <= 0 || fin <= 0) cantidad = 0;
-
-        const precioUnitario = (calibre <= 6.9) ? 0.45 : 0.72;
-        const subtotal = cantidad * precioUnitario;
-
-        document.getElementById('anilla-subtotal-cantidad').textContent = `${cantidad} unidades`;
-        document.getElementById('anilla-subtotal-costo').textContent = `$ ${subtotal.toFixed(2)} USD`;
-    };
 
     window.cambiarModulo = function(el, id) {
         document.querySelectorAll('.modulo-seccion').forEach(s => s.style.display = 'none');
@@ -244,114 +197,8 @@
         document.getElementById('modulo-' + id).style.display = 'block';
         el.classList.add('active');
         if(id === 'manuales') cargarManuales();
-        if(id === 'anillas') {
-            listaCalibresPedidoActual = [];
-            renderizarCarritoAnillas();
-            // Ahora la función ya existe y no dará error de "not defined"
-            window.calcularMontoLineaAnilla();
-        }
     };
 
-    window.agregarAnillaAListaPedido = function() {
-        const calibre = document.getElementById('anilla-calibre').value;
-        const inicio = parseInt(document.getElementById('pago_anilla_inicio').value) || 0;
-        const fin = parseInt(document.getElementById('pago_anilla_fin').value) || 0;
-
-        if(inicio <= 0 || fin <= 0 || fin < inicio) {
-            alert("Rango numérico inconsistente. Por favor, corrígelo.");
-            return;
-        }
-
-        const cantidad = (fin - inicio) + 1;
-        const precioUnitario = (parseFloat(calibre) <= 6.9) ? 0.45 : 0.72;
-        const subtotal = cantidad * precioUnitario;
-
-        listaCalibresPedidoActual.push({
-            calibre: calibre + " mm",
-            rango: `${inicio} - ${fin}`,
-            cantidad: cantidad,
-            subtotal: subtotal
-        });
-
-        renderizarCarritoAnillas();
-        
-        document.getElementById('pago_anilla_inicio').value = fin + 1;
-        document.getElementById('pago_anilla_fin').value = fin + 10;
-        window.calcularMontoLineaAnilla();
-    };
-
-    function renderizarCarritoAnillas() {
-        const tbody = document.getElementById('tbody-lista-anillas-solicitadas');
-        if(listaCalibresPedidoActual.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">No has añadido calibres a este pedido.</td></tr>';
-            document.getElementById('anilla-total-pedido-global').textContent = "$ 0.00 USD";
-            return;
-        }
-
-        tbody.innerHTML = '';
-        let totalAcumulado = 0;
-
-        listaCalibresPedidoActual.forEach((item, index) => {
-            totalAcumulado += item.subtotal;
-            tbody.innerHTML += `<tr>
-                <td style="text-align:center;"><b>${item.calibre}</b></td>
-                <td style="text-align:center; color:#555;">${item.rango}</td>
-                <td style="text-align:center;">${item.cantidad}</td>
-                <td style="text-align:right; font-weight:bold; color:#1565C0;">$ ${item.subtotal.toFixed(2)}</td>
-                <td style="text-align:center;"><button onclick="eliminarFilaCarritoAnillas(${index})" style="background:none; border:none; cursor:pointer; font-size:1rem;">🗑️</button></td>
-            </tr>`;
-        });
-
-        document.getElementById('anilla-total-pedido-global').textContent = `$ ${totalAcumulado.toFixed(2)} USD`;
-    }
-
-    window.eliminarFilaCarritoAnillas = function(index) {
-        listaCalibresPedidoActual.splice(index, 1);
-        renderizarCarritoAnillas();
-    };
-
-    window.enviarSolicitudAnillasSupabase = async function() {
-        if(listaCalibresPedidoActual.length === 0) {
-            alert("Debes añadir al menos un calibre a la lista antes de procesar el pedido.");
-            return;
-        }
-        
-        try {
-            const { data: { user } } = await clienteSupabase.auth.getUser();
-            const { data: socioDatos } = await clienteSupabase.from('socios').select('nombre_completo, numero_cn').eq('id', user.id).single();
-            
-            const nombreSocio = socioDatos ? socioDatos.nombre_completo : user.email;
-            const cnSocio = socioDatos ? socioDatos.numero_cn : 'S/N';
-            const fechaPedido = new Date().toISOString().split('T')[0];
-
-            // 🌟 CORRECCIÓN DE COLUMNAS: Ajustado exactamente a la captura de tu Supabase
-            const filasAInsertar = listaCalibresPedidoActual.map(item => ({
-                socio_id: user.id,
-                socio: nombreSocio,       // Cambiado de socio_nombre a 'socio'
-                cn: cnSocio,              // Cambiado de socio_cn a 'cn'
-                calibre: item.calibre,
-                rango: item.rango,
-                cantidad: parseInt(item.cantidad),
-                subtotal: parseFloat(item.subtotal),
-                fecha: fechaPedido,
-                estado: 'Pendiente'
-            }));
-
-            const { error } = await clienteSupabase
-                .from('solicitudes_anillas') 
-                .insert(filasAInsertar);
-
-            if (error) throw error;
-
-            alert(`¡Pedido de Anillas guardado en el histórico con éxito!\nLa administración ha recibido tu solicitud colectiva.`);
-            
-            listaCalibresPedidoActual = [];
-            renderizarCarritoAnillas();
-
-        } catch (err) {
-            alert("Error al guardar el pedido: " + err.message);
-        }
-    };    
     async function cargarManuales() {
         const contenedor = document.getElementById('lista-manuales');
         const { data, error } = await clienteSupabase.storage.from('archivos_gco').list('manuales');
@@ -366,10 +213,13 @@
         }).join('');
     }
 
-    function calcularVencimientoSocio(fechaBase, modality) {
+    function calcularVencimientoSocio(fechaBase, modalidad) {
         let fecha = new Date(fechaBase + "T12:00:00");
-        if (modality === "Mensual") fecha.setMonth(fecha.getMonth() + 1);
-        else if (modality === "Anual") fecha.setFullYear(fecha.getFullYear() + 1);
+        if (modalidad === "Mensual") {
+            fecha.setMonth(fecha.getMonth() + 1);
+        } else if (modalidad === "Anual") {
+            fecha.setFullYear(fecha.getFullYear() + 1);
+        }
         const partes = fecha.toISOString().split('T')[0].split('-');
         return `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`;
     }
@@ -405,6 +255,7 @@
             sumaAcumulada += parseFloat(p.monto);
             const partes = p.fecha.split('-');
             const fUI = partes.length === 3 ? `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}` : p.fecha;
+
             const vencimientoUI = calcularVencimientoSocio(p.fecha, p.modalidad);
 
             tbodyPagos.innerHTML += `<tr>
@@ -421,13 +272,24 @@
 
     async function init() {
         const { data: { user }, error: errorAuth } = await clienteSupabase.auth.getUser();
-        if (errorAuth || !user) { window.location.href = "login.html"; return; }
+        
+        if (errorAuth || !user) {
+            window.location.href = "login.html";
+            return;
+        }
 
         try {
-            const { data: socio, error: errorSocio } = await clienteSupabase.from('socios').select('*').eq('id', user.id).single();
+            const { data: socio, error: errorSocio } = await clienteSupabase
+                .from('socios')
+                .select('*') 
+                .eq('id', user.id)
+                .single();
 
             if (errorSocio || !socio || socio.estado_socio === 'Pendiente' || socio.estado_socio === 'Inactivo') {
-                alert("Acceso restringido."); await clienteSupabase.auth.signOut(); window.location.href = "login.html"; return;
+                alert("Acceso restringido.");
+                await clienteSupabase.auth.signOut();
+                window.location.href = "login.html";
+                return;
             }
 
             document.getElementById('nombre-usuario-display').textContent = 'Socio: ' + (socio.nombre_completo || user.email);
@@ -437,22 +299,47 @@
                 document.getElementById('btn-ir-admin').style.display = 'inline-block';
             }
             
-            const { data: directorio } = await clienteSupabase.from('socios').select('*');
-            if (directorio) { directorioSociosMemoria = directorio; renderizarSocios(directorioSociosMemoria); }
+            const { data: directorio, error: errorDir } = await clienteSupabase.from('socios').select('*');
+            if (!errorDir && directorio) {
+                directorioSociosMemoria = directorio;
+                renderizarSocios(directorioSociosMemoria);
+            }
 
-        } catch (err) { window.location.href = "login.html"; }
+        } catch (err) {
+            console.error("Error crítico en pasarela de control:", err);
+            window.location.href = "login.html";
+        }
     }
     
     function renderizarSocios(lista) {
-        document.getElementById('tabla-socios-body').innerHTML = lista.map(s => `<tr><td><strong>${s.numero_cn || 'No asignado'}</strong></td><td>${s.nombre_completo}</td><td><span class="etiqueta ${s.estado_socio === 'Activo' ? 'activo' : 'pendiente'}">${s.estado_socio || 'Pendiente'}</span></td></tr>`).join('');
+        document.getElementById('tabla-socios-body').innerHTML = lista.map(s => {
+            let claseEstado = 'activo';
+            if (s.estado_socio === 'Inactivo') claseEstado = 'inactivo';
+            if (s.estado_socio === 'Pendiente') claseEstado = 'pendiente';
+            
+            const numCN = s.numero_cn || '<span style="color:#aaa; font-style:italic;">No asignado</span>';
+            return `<tr>
+                        <td><strong>${numCN}</strong></td>
+                        <td>${s.nombre_completo}</td>
+                        <td><span class="etiqueta ${claseEstado}">${s.estado_socio || 'Pendiente'}</span></td>
+                    </tr>`;
+        }).join('');
     }
 
     window.filtrarDirectorio = () => {
         const txt = document.getElementById('buscador-socios').value.toLowerCase();
-        renderizarSocios(directorioSociosMemoria.filter(s => (s.nombre_completo && s.nombre_completo.toLowerCase().includes(txt)) || (s.numero_cn && s.numero_cn.toLowerCase().includes(txt))));
+        const filtrado = directorioSociosMemoria.filter(s => 
+            (s.nombre_completo && s.nombre_completo.toLowerCase().includes(txt)) || 
+            (s.numero_cn && s.numero_cn.toLowerCase().includes(txt))
+        );
+        renderizarSocios(filtrado);
     };
 
-    document.getElementById('btn-cerrar-sesion').addEventListener('click', async () => { await clienteSupabase.auth.signOut(); window.location.href = "login.html"; });
+    document.getElementById('btn-cerrar-sesion').addEventListener('click', async () => { 
+        await clienteSupabase.auth.signOut(); 
+        window.location.href = "login.html"; 
+    });
+
     init();
 </script>
 </body>
