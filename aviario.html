@@ -60,7 +60,6 @@
 <div class="main-layout">
     <aside class="sidebar">
         <ul style="list-style:none; padding:0; margin:0;">
-            <!-- 👆 ORDEN MODIFICADO: Mi Cuenta Oficial ahora es el primero -->
             <li><a class="nav-link active" onclick="cambiarModulo(this, 'cuenta')">📋 Mi Cuenta Oficial</a></li>
             <li><a class="nav-link" onclick="cambiarModulo(this, 'consultor')">🔍 Consultor de Socios</a></li>
             <li><a class="nav-link" onclick="cambiarModulo(this, 'manuales')">📚 Biblioteca de Manuales</a></li>
@@ -68,7 +67,6 @@
     </aside>
 
     <main>
-        <!-- MÓDULO MI CUENTA OFICIAL (NUEVO ORDEN: POR DEFECTO) -->
         <div id="modulo-cuenta" class="modulo-seccion">
             <div class="grid-perfil-pagos">
                 <div class="tarjeta-socio">
@@ -84,7 +82,7 @@
                     <div style="max-height: 250px; overflow-y: auto;">
                         <table class="tabla-mini">
                             <thead>
-                                <tr><th>Fecha</th><th>Modalidad</th><th>Monto</th><th>📅 Vencimiento</th></tr>
+                                <tr><th>Fecha Pago</th><th>Modalidad</th><th>Monto</th><th>📅 Vencimiento</th></tr>
                             </thead>
                             <tbody id="socio-tabla-pagos">
                                 <tr><td colspan="4" style="text-align:center;">Sincronizando...</td></tr>
@@ -98,22 +96,29 @@
             </div>
         </div>
 
-        <!-- MÓDULO CONSULTOR -->
         <div id="modulo-consultor" class="modulo-seccion" style="display: none;">
             <div class="tarjeta">
-                <h2>🔍 Consultor de Socios</h2>
-                <input type="text" id="buscador-socios" placeholder="Buscar socio..." onkeyup="filtrarDirectorio()" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px;">
-                <table>
-                    <thead><tr><th>Número CN</th><th>Nombre</th><th>Estado</th></tr></thead>
-                    <tbody id="tabla-socios-body"><tr><td colspan="3">Cargando...</td></tr></tbody>
-                </table>
+                <h2>🔍 Consultor de Socios GCO</h2>
+                <p style="color:#666; margin-bottom:20px;">Utiliza el buscador para verificar la validez y el estado oficial de cualquier criador de la asociación.</p>
+                <input type="text" id="buscador-socios" placeholder="Escribe el nombre del socio a consultar..." onkeyup="filtrarDirectorio()" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; font-size:1rem; box-sizing:border-box; margin-bottom:20px;">
+                
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr><th>Número CN</th><th>Nombre Completo</th><th>Estado Oficial</th></tr>
+                        </thead>
+                        <tbody id="tabla-socios-body">
+                            <tr><td colspan="3" style="text-align:center;">Cargando padrón oficial...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- MÓDULO MANUALES -->
         <div id="modulo-manuales" class="modulo-seccion" style="display: none;">
             <div class="tarjeta">
-                <h2>📚 Biblioteca de Manuales</h2>
+                <h2>📚 Biblioteca de Manuales y Reglamentos</h2>
+                <p style="color:#666; margin-bottom:15px;">Descarga los documentos oficiales de la asociación y los estándares de enjuiciamiento actualizados.</p>
                 <div id="lista-manuales" class="grid-manuales">Cargando biblioteca...</div>
             </div>
         </div>
@@ -122,13 +127,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const clienteSupabase = window.supabase.createClient('https://wbgjkkzputlnzpjcullm.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U');
-    const CORREO_ADMIN = "dtangperez77@gmail.com";
+    const supabaseUrl = 'https://wbgjkkzputlnzpjcullm.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndiZ2pra3pwdXRsbnpwamN1bGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzIxMzAsImV4cCI6MjA5Nzc0ODEzMH0.KQ8hYIHJGPTkGA47ajgtr1T0RaS7JBA45StAE2oM1-U';
+    const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    
+    const CORREO_ADMINISTRADOR = "dtangperez77@gmail.com";
     let directorioSociosMemoria = [];
     
-    // Simulación de pagos (debe coincidir con la data del admin)
+    // Historial global enlazado con la administración
     let registroPagosGlobal = [
-        { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape", vencimiento: "2027-07-01" }
+        { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape", vencimiento: "2027-07-01" },
+        { fecha: "2026-06-30", socio: "Jose Javier Valero Rojas", modalidad: "Anual", monto: 120, nota: "Yape", vencimiento: "2027-06-30" }
     ];
 
     window.cambiarModulo = function(el, id) {
@@ -144,60 +153,114 @@
         document.getElementById('socio-correo').textContent = socio.correo_electronico;
         
         const badge = document.getElementById('socio-estado-badge');
-        badge.textContent = socio.estado_socio;
-        badge.className = 'etiqueta ' + (socio.estado_socio === 'Activo' ? 'activo' : 'pendiente');
+        badge.textContent = socio.estado_socio || 'Pendiente';
+        
+        let clase = 'pendiente';
+        if(socio.estado_socio === 'Activo') clase = 'activo';
+        badge.className = 'etiqueta ' + clase;
 
         const tbodyPagos = document.getElementById('socio-tabla-pagos');
         const misPagos = registroPagosGlobal.filter(p => p.socio === socio.nombre_completo);
 
         if(misPagos.length === 0) {
-            tbodyPagos.innerHTML = '<tr><td colspan="4" style="text-align:center;">Sin aportes.</td></tr>';
+            tbodyPagos.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#777;">Aún no registras aportes en el sistema.</td></tr>';
             return;
         }
 
         tbodyPagos.innerHTML = '';
         let suma = 0;
-        misPagos.forEach(p => {
+        
+        // Ordenar del pago más reciente al más antiguo
+        misPagos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(p => {
             suma += p.monto;
+            
+            const fPagoPartes = p.fecha.split('-');
+            const fPagoUI = fPagoPartes.length === 3 ? `${fPagoPartes[2]}/${fPagoPartes[1]}/${fPagoPartes[0]}` : p.fecha;
+
+            const fVencPartes = p.vencimiento ? p.vencimiento.split('-') : [];
+            const fVencUI = fVencPartes.length === 3 ? `${fVencPartes[2]}/${fVencPartes[1]}/${fVencPartes[0]}` : 'No definido';
+
             tbodyPagos.innerHTML += `<tr>
-                <td>${p.fecha}</td>
-                <td>${p.modalidad}</td>
-                <td>S/. ${p.monto}</td>
-                <td style="color:#d32f2f; font-weight:bold;">${p.vencimiento || '-'}</td>
+                <td>${fPagoUI}</td>
+                <td><span class="etiqueta activo">${p.modalidad}</span></td>
+                <td><strong>S/. ${p.monto}</strong></td>
+                <td><span style="color:#d32f2f; font-weight:bold; background-color:#ffebee; padding:3px 6px; border-radius:4px; font-size:0.85rem;">📅 ${fVencUI}</span></td>
             </tr>`;
         });
+        
         document.getElementById('socio-total-aportado').textContent = `S/. ${suma.toFixed(2)}`;
     }
 
-    async function init() {
-        const { data: { user } } = await clienteSupabase.auth.getUser();
-        if (!user) { window.location.href = "login.html"; return; }
+    async function cargarBibliotecaManuales() {
+        const grid = document.getElementById('lista-manuales'); if(!grid) return;
+        try {
+            const { data, error } = await clienteSupabase.storage.from('archivos_gco').list('manuales');
+            if (error) { grid.innerHTML = '<p>Error al sincronizar documentos.</p>'; return; }
+            if(!data || data.length === 0) { grid.innerHTML = '<p style="color:#777;">No hay manuales cargados por la administración.</p>'; return; }
+            
+            grid.innerHTML = '';
+            data.forEach(item => {
+                if(item.name === '.emptyFolderPlaceholder') return;
+                const { data: urlData } = clienteSupabase.storage.from('archivos_gco').getPublicUrl('manuales/' + item.name);
+                let nombreLimpio = item.name.substring(item.name.indexOf('_') + 1).replace('.pdf', '').replace(/_/g, ' ');
+                
+                grid.innerHTML += `<div class="card-manual">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">📕</div>
+                    <h4 style="margin: 5px 0; color:var(--color-principal); text-transform: capitalize;">${nombreLimpio}</h4>
+                    <a href="${urlData.publicUrl}" target="_blank" class="btn-descarga">Leer Documento</a>
+                </div>`;
+            });
+        } catch (err) { grid.innerHTML = '<p>Error de conexión de red.</p>'; }
+    }
 
-        const { data: socio } = await clienteSupabase.from('socios').select('*').eq('id', user.id).single();
-        if (socio) {
-            document.getElementById('nombre-usuario-display').textContent = 'Socio: ' + socio.nombre_completo;
-            renderizarPerfilYEstadoDeCuenta(socio);
-            if (user.email === CORREO_ADMIN) document.getElementById('btn-ir-admin').style.display = 'inline-block';
-        }
+    function renderizarSociosConsultor(lista) {
+        const tbody = document.getElementById('tabla-socios-body'); if(!tbody) return;
+        if(lista.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#777;">No se encontraron socios con ese nombre.</td></tr>'; return; }
         
-        const { data: directorio } = await clienteSupabase.from('socios').select('*');
-        if (directorio) {
-            directorioSociosMemoria = directorio;
-            renderizarSocios(directorioSociosMemoria);
-        }
-    }
-    
-    function renderizarSocios(lista) {
-        document.getElementById('tabla-socios-body').innerHTML = lista.map(s => `<tr><td>${s.numero_cn || '-'}</td><td>${s.nombre_completo}</td><td><span class="etiqueta ${s.estado_socio === 'Activo' ? 'activo' : 'pendiente'}">${s.estado_socio}</span></td></tr>`).join('');
+        tbody.innerHTML = lista.map(s => {
+            let clase = 'pendiente';
+            if(s.estado_socio === 'Activo') clase = 'activo';
+            return `<tr>
+                <td><strong>${s.numero_cn || 'No asignado'}</strong></td>
+                <td>${s.nombre_completo}</td>
+                <td><span class="etiqueta ${clase}">${s.estado_socio || 'Pendiente'}</span></td>
+            </tr>`;
+        }).join('');
     }
 
-    window.filtrarDirectorio = () => {
-        const txt = document.getElementById('buscador-socios').value.toLowerCase();
-        renderizarSocios(directorioSociosMemoria.filter(s => s.nombre_completo.toLowerCase().includes(txt)));
+    window.filtrarDirectorio = function() {
+        const txt = document.getElementById('buscador-socios').value.toLowerCase().trim();
+        const filtrados = directorioSociosMemoria.filter(s => s.nombre_completo.toLowerCase().includes(txt));
+        renderizarSociosConsultor(filtrados);
     };
 
-    document.getElementById('btn-cerrar-sesion').addEventListener('click', async () => { await clienteSupabase.auth.signOut(); window.location.href = "login.html"; });
-    init();
+    async function verificarAccesoSocio() {
+        const { data: { user }, error } = await clienteSupabase.auth.getUser();
+        if (error || !user) { window.location.href = "login.html"; return; }
+
+        const { data: socio, error: socioError } = await clienteSupabase.from('socios').select('*').eq('id', user.id).single();
+        if (socioError || !socio) { window.location.href = "login.html"; return; }
+
+        document.getElementById('nombre-usuario-display').textContent = `Criador: ${socio.nombre_completo}`;
+        if (user.email === CORREO_ADMINISTRADOR.toLowerCase().trim()) {
+            document.getElementById('btn-ir-admin').style.display = 'inline-block';
+        }
+
+        renderizarPerfilYEstadoDeCuenta(socio);
+
+        const { data: todosLosSocios } = await clienteSupabase.from('socios').select('numero_cn, nombre_completo, estado_socio').order('nombre_completo', { ascending: true });
+        if(todosLosSocios) {
+            directorioSociosMemoria = todosLosSocios;
+            renderizarSociosConsultor(directorioSociosMemoria);
+        }
+        await cargarBibliotecaManuales();
+    }
+
+    document.getElementById('btn-cerrar-sesion').addEventListener('click', async function() {
+        await clienteSupabase.auth.signOut(); window.location.href = "login.html";
+    });
+
+    document.addEventListener('DOMContentLoaded', verificarAccesoSocio);
 </script>
 </body>
 </html>
