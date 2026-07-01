@@ -318,16 +318,17 @@
         
         try {
             const { data: { user } } = await clienteSupabase.auth.getUser();
-            const { data: socio } = await clienteSupabase.from('socios').select('nombre_completo, numero_cn').eq('id', user.id).single();
+            const { data: socioDatos } = await clienteSupabase.from('socios').select('nombre_completo, numero_cn').eq('id', user.id).single();
             
-            const nombreSocio = socio ? socio.nombre_completo : user.email;
-            const cnSocio = socio ? socio.numero_cn : 'S/N';
+            const nombreSocio = socioDatos ? socioDatos.nombre_completo : user.email;
+            const cnSocio = socioDatos ? socioDatos.numero_cn : 'S/N';
             const fechaPedido = new Date().toISOString().split('T')[0];
 
+            // 🌟 CORRECCIÓN DE COLUMNAS: Ajustado exactamente a la captura de tu Supabase
             const filasAInsertar = listaCalibresPedidoActual.map(item => ({
                 socio_id: user.id,
-                socio_nombre: nombreSocio,
-                socio_cn: cnSocio,
+                socio: nombreSocio,       // Cambiado de socio_nombre a 'socio'
+                cn: cnSocio,              // Cambiado de socio_cn a 'cn'
                 calibre: item.calibre,
                 rango: item.rango,
                 cantidad: parseInt(item.cantidad),
@@ -336,7 +337,6 @@
                 estado: 'Pendiente'
             }));
 
-            // 🌟 CORRECCIÓN AQUÍ: Cambiado de 'pedidos_anillas' a 'solicitudes_anillas'
             const { error } = await clienteSupabase
                 .from('solicitudes_anillas') 
                 .insert(filasAInsertar);
@@ -351,8 +351,7 @@
         } catch (err) {
             alert("Error al guardar el pedido: " + err.message);
         }
-    };
-
+    };    
     async function cargarManuales() {
         const contenedor = document.getElementById('lista-manuales');
         const { data, error } = await clienteSupabase.storage.from('archivos_gco').list('manuales');
