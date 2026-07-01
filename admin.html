@@ -737,7 +737,7 @@
             }
         }
 
-        // ⏳ 3. RENDERIZAR LA TABLA DE DESGLOSE HISTÓRICO CON LAS COLUMNAS CORRECTAS ('cn' y 'socio')
+       // ⏳ 3. RENDERIZAR LA TABLA DE DESGLOSE HISTÓRICO CON AUTO-COMPLETADO INTELIGENTE
         function renderizarHistoricoDetalladoAdmin(pedidos) {
             const tbodyDetalle = document.getElementById('tbody-anillas-historico-detallado');
             if (!tbodyDetalle) return;
@@ -752,10 +752,22 @@
                 const partes = p.fecha ? p.fecha.split('-') : [];
                 const fechaUI = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : p.fecha;
 
+                // 🌟 AUTO-COMPLETADO INTEGRADO: Si la fila no tiene datos del socio, los rescatamos del padrón en memoria
+                let nombreSocioFinal = p.socio;
+                let cnSocioFinal = p.cn;
+
+                if (!nombreSocioFinal || nombreSocioFinal === 'Sin Nombre' || !cnSocioFinal || cnSocioFinal === 'S/N') {
+                    const socioEncontrado = listaSociosMemoria.find(s => s.id === p.socio_id);
+                    if (socioEncontrado) {
+                        if (!nombreSocioFinal || nombreSocioFinal === 'Sin Nombre') nombreSocioFinal = socioEncontrado.nombre_completo;
+                        if (!cnSocioFinal || cnSocioFinal === 'S/N') cnSocioFinal = socioEncontrado.numero_cn;
+                    }
+                }
+
                 return `<tr>
                     <td style="padding:10px; text-align:center;">${fechaUI}</td>
-                    <td style="padding:10px; text-align:center;"><code>${p.cn || 'S/N'}</code></td>
-                    <td style="padding:10px; text-align:left;"><strong>${p.socio || 'Sin Nombre'}</strong></td>
+                    <td style="padding:10px; text-align:center;"><code>${cnSocioFinal || 'S/N'}</code></td>
+                    <td style="padding:10px; text-align:left;"><strong>${nombreSocioFinal || 'Socio No Verificado'}</strong></td>
                     <td style="padding:10px; text-align:center;"><b>${p.calibre}</b></td>
                     <td style="padding:10px; text-align:center;"><span style="background:#eee; padding:2px 6px; border-radius:4px;">${p.rango}</span></td>
                     <td style="padding:10px; text-align:center;">${p.cantidad} un.</td>
