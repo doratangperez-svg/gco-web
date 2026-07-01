@@ -62,6 +62,10 @@
         .btn-ficha:hover { background-color: #01579B; }
         .btn-editar { background-color: #FFC107; color: #333; }
         .btn-eliminar { background-color: #F44336; color: white; }
+        
+        /* 💵 NUEVO BOTÓN DE PAGO DIRECTO EN LA TABLA DE SOCIOS */
+        .btn-pago-tabla { background-color: #00796B; color: white; }
+        .btn-pago-tabla:hover { background-color: #004D40; }
 
         .grid-kpis-pagos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .tarjeta-kpi { padding: 20px; border-radius: 8px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -70,6 +74,33 @@
         .kpi-morosos { background-color: #E65100; }
         .tarjeta-kpi h4 { margin: 0 0 5px 0; font-size: 0.9rem; text-transform: uppercase; opacity: 0.9; letter-spacing: 0.5px; }
         .tarjeta-kpi p { margin: 0; font-size: 1.8rem; font-weight: bold; }
+
+        /* 🖼️ INTERFAZ DE CAPA MODAL (VENTANA FLOTANTE DE PAGOS) */
+        .capa-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Oculto por defecto */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .ventana-modal {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            animation: aparecerModal 0.2s ease-out;
+        }
+        @keyframes aparecerModal {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-cabecera { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--color-borde); padding-bottom: 10px; margin-bottom: 20px; }
+        .modal-cabecera h3 { margin: 0; color: var(--color-admin); }
+        .btn-cerrar-x { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
     </style>
 </head>
 <body>
@@ -87,7 +118,7 @@
             <h3>Panel de Control</h3>
             <ul class="nav-menu">
                 <li><a class="nav-link active" onclick="cambiarModulo('socios')">👥 Alta de Socios</a></li>
-                <li><a class="nav-link" onclick="cambiarModulo('pagos')">💵 Control de Pagos</a></li>
+                <li><a class="nav-link" onclick="cambiarModulo('pagos')">💵 Control de Pagos Global</a></li>
                 <li><a class="nav-link" onclick="cambiarModulo('manuales')">📚 Carga de Manuales</a></li>
                 <li><a class="nav-link" onclick="cambiarModulo('fotos')">📷 Galería de Aves</a></li>
                 
@@ -180,50 +211,10 @@
                 </div>
 
                 <div class="tarjeta">
-                    <h2>Gestión y Registro de Cuotas Colectivas</h2>
-                    <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">
-                        Administración manualizada de ingresos institucionales. Las cuotas vigentes corresponden a **S/. 10 mensuales** o **S/. 120 anuales** por criador afiliado.
-                    </p>
-                    
-                    <form id="form-registro-pago" style="background-color: #f9f9f9; padding: 20px; border-radius: 6px; border: 1px dashed #ccc; margin-bottom: 25px;">
-                        <h4 id="titulo-formulario-pago" style="margin-top: 0; margin-bottom: 15px; color: var(--color-admin);">Registrar Aporte Manual</h4>
-                        <div class="grid-formulario">
-                            <div class="form-group">
-                                <label>Seleccionar Socio *</label>
-                                <select id="pago_socio_id" required>
-                                    <option value="">Seleccione un socio activo...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Fecha de Pago *</label>
-                                <input type="date" id="pago_fecha_manual" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Modalidad de Cuota *</label>
-                                <select id="pago_modalidad" onchange="actualizarMontoSugerido()" required>
-                                    <option value="Mensual">Mensual (S/. 10)</option>
-                                    <option value="Anual">Anual (S/. 120)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Monto Recibido (S/.) *</label>
-                                <input type="number" id="pago_monto" value="10" min="0" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Referencia / Nota</label>
-                                <input type="text" id="pago_nota" placeholder="Ej: Depósito Yape / Transferencia">
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button type="submit" class="btn-guardar" id="btn-guardar-pago" style="width: auto; padding: 10px 30px;">Guardar Aporte en Sistema</button>
-                            <button type="button" class="btn-cancelar" id="btn-cancelar-pago" onclick="cancelarEdicionPago()" style="width: auto; margin-top: 0; padding: 10px 20px;">Cancelar Edición</button>
-                        </div>
-                    </form>
-
-                    <!-- FILTROS DE HISTORIAL Y BOTÓN DE DESCARGA EXCEL -->
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; margin-top: 35px; border-bottom: 2px solid var(--color-borde); padding-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid var(--color-borde); padding-bottom: 15px;">
                         <div>
-                            <h3 style="color: var(--color-admin); margin: 0 0 10px 0;">Historial Reciente de Recaudación</h3>
+                            <h2 style="margin: 0; padding: 0; border: none;">Historial Reciente de Recaudación</h2>
+                            <p style="color: #666; font-size: 0.9rem; margin: 5px 0 10px 0;">Filtra las transacciones registradas o descarga el archivo en limpio para Microsoft Excel.</p>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                                 <select id="filtro-pago-mes" onchange="filtrarHistorialPagosLocal()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc;">
                                     <option value="TODOS">Todos los meses</option>
@@ -260,11 +251,11 @@
                                     <th>Modalidad</th>
                                     <th>Monto</th>
                                     <th>Detalle</th>
-                                    <th>Acción</th> <!-- 👈 COLUMNA ADAPTADA SEGÚN IMAGE_25F029.PNG -->
+                                    <th>Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="tabla-historial-pagos">
-                                <!-- Cargado dinámicamente desde memoria con soporte para edición y borrado -->
+                                <!-- Renderizado dinámico -->
                             </tbody>
                         </table>
                     </div>
@@ -275,7 +266,7 @@
             <div id="modulo-manuales" style="display: none;">
                 <div class="tarjeta">
                     <h2>📚 Subir Nuevo Reglamento o Manual</h2>
-                    <p style="color: #666; margin-bottom: 20px;">Sube archivos en formato PDF. Estos estarán disponibles en la biblioteca de los socios.</p>
+                    <p style="color: #666; margin-bottom: 20px;">Sube archivos en formato PDF.</p>
                     <form id="form-manual">
                         <div class="grid-formulario">
                             <div class="form-group">
@@ -292,7 +283,6 @@
             <div id="modulo-fotos" style="display: none;">
                 <div class="tarjeta">
                     <h2>📷 Subir Fotografía de Ejemplar</h2>
-                    <p style="color: #666; margin-bottom: 20px;">Sube imágenes de concursos, voladeras o ejemplares destacados (Formato JPG o PNG).</p>
                     <form id="form-foto">
                         <div class="grid-formulario">
                             <div class="form-group">
@@ -308,6 +298,53 @@
         </main>
     </div>
 
+    <!-- 📥 VENTANA MODAL FLOTANTE DE GESTIÓN DE PAGOS INDIVIDUALES -->
+    <div id="modal-pagos-usuario" class="capa-modal">
+        <div class="ventana-modal">
+            <div class="modal-cabecera">
+                <h3 id="modal-titulo-accion">Registrar Cuota de Socio</h3>
+                <button class="btn-cerrar-x" onclick="cerrarModalPago()">&times;</button>
+            </div>
+            
+            <form id="form-registro-pago">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Socio Seleccionado</label>
+                    <input type="text" id="pago_socio_nombre" style="background-color:#eee; font-weight:bold;" readonly>
+                </div>
+                
+                <div class="grid-formulario" style="grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:0;">
+                    <div class="form-group">
+                        <label>Fecha del Pago *</label>
+                        <input type="date" id="pago_fecha_manual" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Modalidad *</label>
+                        <select id="pago_modalidad" onchange="actualizarMontoSugerido()" required>
+                            <option value="Mensual">Mensual (S/. 10)</option>
+                            <option value="Anual">Anual (S/. 120)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-formulario" style="grid-template-columns: 1fr 1.5fr; gap:10px; margin-top:10px;">
+                    <div class="form-group">
+                        <label>Monto Recibido *</label>
+                        <input type="number" id="pago_monto" value="10" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Referencia / Detalle</label>
+                        <input type="text" id="pago_nota" placeholder="Yape, Transferencia, Efectivo">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-guardar" id="btn-modal-confirmar">Confirmar Transacción</button>
+                    <button type="button" class="btn-cancelar" style="display:block; margin-top:0;" onclick="cerrarModalPago()">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = 'https://wbgjkkzputlnzpjcullm.supabase.co';
@@ -317,10 +354,9 @@
         const CORREO_ADMINISTRADOR = "dtangperez77@gmail.com"; 
         
         let idSocioEnEdicion = null;
-        let indicePagoEnEdicion = null; // Índice de control para saber qué pago se está modificando
+        let indicePagoEnEdicion = null; 
         let listaSociosMemoria = [];
         
-        // Datos base solicitados e indexados de acuerdo a image_25f029.png
         let registroPagosMemoria = [
             { fecha: "2026-07-01", socio: "William David Tang Perez", modalidad: "Anual", monto: 120, nota: "Yape" },
             { fecha: "2026-06-30", socio: "Jose Javier Valero Rojas", modalidad: "Anual", monto: 120, nota: "Yape" }
@@ -345,7 +381,6 @@
 
             if(id === 'pagos') {
                 actualizarResumenPagosUI();
-                cancelarEdicionPago();
                 renderizarTablaPagos(registroPagosMemoria);
             }
         };
@@ -355,8 +390,7 @@
             if (error || !user) { window.location.href = "login.html"; return; }
 
             if (user.email !== CORREO_ADMINISTRADOR.toLowerCase().trim()) {
-                alert("Acceso denegado. Esta área es solo para la administración de la GCO.");
-                window.location.href = "aviario.html"; return;
+                alert("Acceso denegado."); window.location.href = "aviario.html"; return;
             }
 
             document.getElementById('admin-email').textContent = `Admin: ${user.email}`;
@@ -365,27 +399,15 @@
 
         async function cargarTablaSocios() {
             const tbody = document.getElementById('tabla-admin-socios');
-            const selectSociosPagos = document.getElementById('pago_socio_id'); 
             if(!tbody) return;
 
             try {
                 const { data, error } = await clienteSupabase.from('socios').select('*').order('fecha_ingreso', { ascending: false });
-                if (error) { tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error: ' + error.message + '</td></tr>'; return; }
+                if (error) { tbody.innerHTML = '<tr><td>Error: ' + error.message + '</td></tr>'; return; }
                 
                 listaSociosMemoria = data || [];
-                
-                if(selectSociosPagos) {
-                    selectSociosPagos.innerHTML = '<option value="">Seleccione un socio activo...</option>';
-                    listaSociosMemoria.forEach(s => {
-                        selectSociosPagos.innerHTML += `<option value="${s.nombre_completo}">${s.numero_cn || 'Sin CN'} - ${s.nombre_completo}</option>`;
-                    });
-                }
-
-                if(listaSociosMemoria.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay socios registrados.</td></tr>'; return;
-                }
-
                 tbody.innerHTML = '';
+                
                 listaSociosMemoria.forEach((socio, index) => {
                     let claseEstado = 'activo';
                     if (socio.estado_socio === 'Inactivo') claseEstado = 'inactivo';
@@ -395,84 +417,80 @@
                     const em = socio.correo_electronico ? '✉️ ' + socio.correo_electronico : 'Sin datos';
                     const cn = socio.numero_cn ? socio.numero_cn : '<span>No asignado</span>';
                     
+                    // 💸 SE ADICIONA EL BOTÓN DE "REGISTRAR PAGO" DIRECTO POR CADA CRIADOR
                     tbody.innerHTML += `<tr>
                         <td><strong>${cn}</strong></td>
                         <td>${socio.nombre_completo}</td>
                         <td style="font-size: 0.9rem; color: #555;">${em}<br>${tl}</td>
                         <td><span class="etiqueta ${claseEstado}">${socio.estado_socio || 'Pendiente'}</span></td>
                         <td>
-                            <button class="btn-accion btn-ficha" onclick="generarFichaSocio(${index})">Ficha de Socio</button>
+                            <button class="btn-accion btn-pago-tabla" onclick="abrirModalPagoNuevo('${socio.nombre_completo}')">💸 Registrar Pago</button>
+                            <button class="btn-accion btn-ficha" onclick="generarFichaSocio(${index})">Ficha</button>
                             <button class="btn-accion btn-editar" onclick="prepararEdicionSocio(${index})">Editar</button>
                             <button class="btn-accion btn-eliminar" onclick="window.eliminarSocio('${socio.id}', '${socio.nombre_completo}')">Eliminar</button>
                         </td>
                     </tr>`;
                 });
-            } catch (err) { tbody.innerHTML = '<tr><td colspan="5">Error: ' + err.message + '</td></tr>'; }
+            } catch (err) { tbody.innerHTML = '<tr><td>Error: ' + err.message + '</td></tr>'; }
         }
 
+        // 🗔 ENRUTAMIENTO UI/UX DEL MODAL FLOTANTE
+        window.abrirModalPagoNuevo = function(nombreSocio) {
+            indicePagoEnEdicion = null;
+            document.getElementById('form-registro-pago').reset();
+            
+            document.getElementById('pago_socio_nombre').value = nombreSocio;
+            document.getElementById('pago_fecha_manual').value = new Date().toISOString().split('T')[0];
+            document.getElementById('pago_monto').value = 10;
+            
+            document.getElementById('modal-titulo-accion').textContent = "💰 Registrar Nuevo Aporte";
+            document.getElementById('btn-modal-confirmar').textContent = "Confirmar Transacción";
+            document.getElementById('btn-modal-confirmar').style.backgroundColor = "var(--color-admin)";
+            
+            document.getElementById('modal-pagos-usuario').style.display = "flex";
+        };
+
+        window.cerrarModalPago = function() {
+            document.getElementById('modal-pagos-usuario').style.display = "none";
+            indicePagoEnEdicion = null;
+        };
+
         window.actualizarMontoSugerido = function() {
-            if (indicePagoEnEdicion !== null) return; // No altera el monto si está en modo edición de un registro previo
+            if (indicePagoEnEdicion !== null) return; 
             const modalidad = document.getElementById('pago_modalidad').value;
             document.getElementById('pago_monto').value = (modalidad === 'Mensual') ? 10 : 120;
         };
 
-        function actualizarResumenPagosUI() {
-            const activos = listaSociosMemoria.filter(s => s.estado_socio === 'Activo').length;
-            const pendientes = listaSociosMemoria.filter(s => s.estado_socio === 'Pendiente').length;
-            const totalCaja = registroPagosMemoria.reduce((acc, p) => acc + parseFloat(p.monto), 0);
-            
-            document.getElementById('kpi-monto').textContent = `S/. ${totalCaja}`;
-            document.getElementById('kpi-activos').textContent = activos;
-            document.getElementById('kpi-pendientes').textContent = pendientes;
-        }
-
-        // REGISTRO Y ACTUALIZACIÓN DINÁMICA DE APORTES
+        // SUBMIT UNIFICADO DEL FORMULARIO DEL MODAL
         document.getElementById('form-registro-pago').addEventListener('submit', function(e) {
             e.preventDefault();
-            const socio = document.getElementById('pago_socio_id').value;
+            const socio = document.getElementById('pago_socio_nombre').value;
             const fechaManual = document.getElementById('pago_fecha_manual').value; 
             const mod = document.getElementById('pago_modalidad').value;
             const monto = parseFloat(document.getElementById('pago_monto').value);
             const nota = document.getElementById('pago_nota').value || 'Ninguna';
 
             if (indicePagoEnEdicion !== null) {
-                // Modo Edición: Actualiza el registro existente en la posición guardada
-                registroPagosMemoria[indicePagoEnEdicion] = {
-                    fecha: fechaManual,
-                    socio: socio,
-                    modalidad: mod,
-                    monto: monto,
-                    nota: nota
-                };
-                alert("¡Información del aporte actualizada correctamente!");
+                registroPagosMemoria[indicePagoEnEdicion] = { fecha: fechaManual, socio: socio, modalidad: mod, monto: monto, nota: nota };
+                alert("¡Aporte editado correctamente!");
             } else {
-                // Modo Registro: Inserta un aporte nuevo
-                registroPagosMemoria.push({
-                    fecha: fechaManual,
-                    socio: socio,
-                    modalidad: mod,
-                    monto: monto,
-                    nota: nota
-                });
-                alert("¡Aporte verificado y anexado con éxito!");
+                registroPagosMemoria.push({ fecha: fechaManual, socio: socio, modalidad: mod, monto: monto, nota: nota });
+                alert("¡Aporte verificado y anexado!");
             }
 
-            cancelarEdicionPago();
+            cerrarModalPago();
             actualizarResumenPagosUI();
             filtrarHistorialPagosLocal();
         });
 
-        // REPRODUCCIÓN DINÁMICA DE LA TABLA COMPATIBLE CON EDICIÓN Y BORRADO (IMAGE_25F029.PNG)
         function renderizarTablaPagos(datos) {
             const tabla = document.getElementById('tabla-historial-pagos');
+            if(!tabla) return;
             if (datos.length === 0) {
-                tabla.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #777;">No se encontraron registros con los filtros seleccionados.</td></tr>';
-                return;
+                tabla.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #777;">No se encontraron registros.</td></tr>'; return;
             }
             
             tabla.innerHTML = '';
-            
-            // Mantenemos una correspondencia exacta de los índices originales de la memoria mapeándolos antes de ordenar
             const mapeadosConIndice = datos.map((p, originalIndex) => ({ ...p, originalIndex }));
             const ordenados = mapeadosConIndice.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
             
@@ -487,7 +505,6 @@
                     <td><strong>S/. ${p.monto}</strong></td>
                     <td style="font-size:0.9rem; color:#555;">${p.nota}</td>
                     <td>
-                        <!-- 🛠️ BOTONES DE ACCIÓN PARA PAGOS INDIVIDUALES -->
                         <button class="btn-accion btn-editar" onclick="prepararEdicionPago(${p.originalIndex})">Editar</button>
                         <button class="btn-accion btn-eliminar" onclick="eliminarPagoIndividual(${p.originalIndex}, '${p.socio}')">Eliminar</button>
                     </td>
@@ -495,55 +512,28 @@
             });
         }
 
-        // ✏️ PREPARAR EDICIÓN: EXTRAE Y REDIRIGE AL FORMULARIO SUPERIOR
         window.prepararEdicionPago = function(index) {
-            const pago = registroPagosMemoria[index];
-            if (!pago) return;
+            const p = registroPagosMemoria[index];
+            if (!p) return;
 
             indicePagoEnEdicion = index;
 
-            document.getElementById('pago_socio_id').value = pago.socio;
-            document.getElementById('pago_fecha_manual').value = pago.fecha;
-            document.getElementById('pago_modalidad').value = pago.modalidad;
-            document.getElementById('pago_monto').value = pago.monto;
-            document.getElementById('pago_nota').value = pago.nota === 'Ninguna' ? '' : pago.nota;
+            document.getElementById('pago_socio_nombre').value = p.socio;
+            document.getElementById('pago_fecha_manual').value = p.fecha;
+            document.getElementById('pago_modalidad').value = p.modalidad;
+            document.getElementById('pago_monto').value = p.monto;
+            document.getElementById('pago_nota').value = p.nota === 'Ninguna' ? '' : p.nota;
 
-            document.getElementById('titulo-formulario-pago').textContent = "✏️ Modificar Registro de Aporte";
-            const btnGuardar = document.getElementById('btn-guardar-pago');
-            btnGuardar.textContent = "Actualizar Aporte";
-            btnGuardar.style.backgroundColor = "#ff9800";
-            document.getElementById('btn-cancelar-pago').style.display = 'block';
-
-            window.scrollTo({ top: 400, behavior: 'smooth' });
+            document.getElementById('modal-titulo-accion').textContent = "✏️ Modificar Aporte Existente";
+            document.getElementById('btn-modal-confirmar').textContent = "Actualizar Aporte";
+            document.getElementById('btn-modal-confirmar').style.backgroundColor = "#ff9800";
+            
+            document.getElementById('modal-pagos-usuario').style.display = "flex";
         };
 
-        // ❌ CANCELAR EDICIÓN: RESTABLECE LA UI AL ESTADO BASE
-        window.cancelarEdicionPago = function() {
-            indicePagoEnEdicion = null;
-            document.getElementById('form-registro-pago').reset();
-            document.getElementById('pago_fecha_manual').value = new Date().toISOString().split('T')[0];
-            document.getElementById('pago_monto').value = 10;
-
-            document.getElementById('titulo-formulario-pago').textContent = "Registrar Aporte Manual";
-            const btnGuardar = document.getElementById('btn-guardar-pago');
-            btnGuardar.textContent = "Guardar Aporte en Sistema";
-            btnGuardar.style.backgroundColor = "var(--color-admin)";
-            document.getElementById('btn-cancelar-pago').style.display = 'none';
-        };
-
-        // 🗑️ ELIMINACIÓN DE APORTE CON FILTRO DE SEGURIDAD EXPLICITO
         window.eliminarPagoIndividual = function(index, nombreSocio) {
-            const pago = registroPagosMemoria[index];
-            if (!pago) return;
-
-            const confirmar = confirm(`⚠️ ¿Estás seguro de que deseas eliminar permanentemente este pago de S/. ${pago.monto} efectuado por "${nombreSocio}"?\n\nEsta acción recalculará los balances informativos de la caja.`);
-            if (!confirmar) return;
-
-            // Remueve el elemento del array local
+            if (!confirm(`¿Eliminar pago de ${nombreSocio}?`)) return;
             registroPagosMemoria.splice(index, 1);
-            
-            if (indicePagoEnEdicion === index) cancelarEdicionPago();
-            
             actualizarResumenPagosUI();
             filtrarHistorialPagosLocal();
         };
@@ -551,95 +541,58 @@
         window.filtrarHistorialPagosLocal = function() {
             const mesSel = document.getElementById('filtro-pago-mes').value;
             const anioSel = document.getElementById('filtro-pago-anio').value;
-
             const filtrados = registroPagosMemoria.filter(p => {
-                const partes = p.fecha.split('-'); 
-                if(partes.length !== 3) return true;
-                
-                const matchMes = (mesSel === 'TODOS') || (partes[1] === mesSel);
-                const matchAnio = (anioSel === 'TODOS') || (partes[0] === anioSel);
-                
-                return matchMes && matchAnio;
+                const partes = p.fecha.split('-'); if(partes.length !== 3) return true;
+                return ((mesSel === 'TODOS') || (partes[1] === mesSel)) && ((anioSel === 'TODOS') || (partes[0] === anioSel));
             });
-
             renderizarTablaPagos(filtrados);
         };
 
-        window.exportarHistorialExcel = function() {
-            const mesTexto = document.getElementById('filtro-pago-mes').options[document.getElementById('filtro-pago-mes').selectedIndex].text;
-            const anioTexto = document.getElementById('filtro-pago-anio').options[document.getElementById('filtro-pago-anio').selectedIndex].text;
+        function actualizarResumenPagosUI() {
+            const activos = listaSociosMemoria.filter(s => s.estado_socio === 'Activo').length;
+            const pendientes = listaSociosMemoria.filter(s => s.estado_socio === 'Pendiente').length;
+            const totalCaja = registroPagosMemoria.reduce((acc, p) => acc + parseFloat(p.monto), 0);
+            
+            document.getElementById('kpi-monto').textContent = `S/. ${totalCaja}`;
+            document.getElementById('kpi-activos').textContent = activos;
+            document.getElementById('kpi-pendientes').textContent = pendientes;
+        }
 
+        window.exportarHistorialExcel = function() {
             const mesSel = document.getElementById('filtro-pago-mes').value;
             const anioSel = document.getElementById('filtro-pago-anio').value;
             const datosAExportar = registroPagosMemoria.filter(p => {
-                const partes = p.fecha.split('-');
-                if(partes.length !== 3) return true;
+                const partes = p.fecha.split('-'); if(partes.length !== 3) return true;
                 return ((mesSel === 'TODOS') || (partes[1] === mesSel)) && ((anioSel === 'TODOS') || (partes[0] === anioSel));
             });
 
-            if(datosAExportar.length === 0) return alert("No hay datos para exportar.");
+            if(datosAExportar.length === 0) return alert("No hay datos.");
 
-            let excelTemplate = `
-                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-                <head><meta charset="UTF-8"><!--[if gte o mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Historial GCO</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
-                <body>
-                    <h2 style="color:#1565C0;">REPORTE DE RECAUDACIÓN E INGRESOS - GCO</h2>
-                    <p><b>Filtro Aplicado:</b> ${mesTexto} / ${anioTexto}</p>
-                    <p><b>Fecha de Emisión:</b> ${new Date().toLocaleDateString()}</p>
-                    <table border="1" style="border-collapse:collapse; font-family:Arial, sans-serif;">
-                        <tr style="background-color:#1565C0; color:white; font-weight:bold;">
-                            <th style="padding:8px;">Fecha de Pago</th>
-                            <th style="padding:8px;">Asociado / Criador</th>
-                            <th style="padding:8px;">Modalidad de Cuota</th>
-                            <th style="padding:8px;">Monto Recibido</th>
-                            <th style="padding:8px;">Referencia / Detalle</th>
-                        </tr>
-            `;
-
-            datosAExportar.forEach(p => {
-                const partes = p.fecha.split('-');
-                const fClean = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : p.fecha;
-                excelTemplate += `
-                    <tr>
-                        <td style="padding:6px; text-align:center;">${fClean}</td>
-                        <td style="padding:6px;">${p.socio}</td>
-                        <td style="padding:6px; text-align:center;">${p.modalidad}</td>
-                        <td style="padding:6px; text-align:right; font-weight:bold;">S/. ${parseFloat(p.monto).toFixed(2)}</td>
-                        <td style="padding:6px; color:#555;">${p.nota}</td>
-                    </tr>
-                `;
-            });
-
+            let excelTemplate = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Fecha</th><th>Socio</th><th>Modalidad</th><th>Monto</th><th>Detalle</th></tr>`;
+            datosAExportar.forEach(p => { excelTemplate += `<tr><td>${p.fecha}</td><td>${p.socio}</td><td>${p.modalidad}</td><td>S/. ${p.monto}</td><td>${p.nota}</td></tr>`; });
             excelTemplate += `</table></body></html>`;
 
             const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8;' });
             const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            
-            link.href = url;
-            link.setAttribute("download", `GCO_Historico_Pagos_${mesSel}_${anioSel}.xls`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `GCO_Pagos.xls`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
         window.verCodigosDisponibles = function() {
             const codigosOcupados = listaSociosMemoria.map(s => s.numero_cn ? s.numero_cn.trim().toUpperCase() : null).filter(c => c !== null);
             let disponibles = [];
             for (let i = 1; i <= 100; i++) {
-                const numeroConCeros = String(i).padStart(3, '0');
-                const codigoFormateado = `GCO-${numeroConCeros}`;
+                const codigoFormateado = `GCO-${String(i).padStart(3, '0')}`;
                 if (!codigosOcupados.includes(codigoFormateado)) disponibles.push(codigoFormateado);
             }
-            if (disponibles.length === 0) { alert("Todos los códigos del 001 al 100 están ocupados."); } 
-            else { alert(`Anillas disponibles:\n\n${disponibles.join(', ')}`); }
+            alert(`Disponibles:\n\n${disponibles.join(', ')}`);
         };
 
         window.generarFichaSocio = function(index) {
             const socio = listaSociosMemoria[index]; if (!socio) return;
-            const ventanaImpresion = window.open('', '_blank'); if(!ventanaImpresion) return alert("Habilita las ventanas emergentes.");
-            ventanaImpresion.document.open();
-            ventanaImpresion.document.write('<html><body><h2>Ficha de Socio - ' + (socio.numero_cn || 'Sin CN') + '</h2><p>Nombre: ' + socio.nombre_completo + '</p></body></html>');
+            const ventanaImpresion = window.open('', '_blank');
+            ventanaImpresion.document.open(); ventanaImpresion.document.write('<html><body><h2>Ficha: ' + socio.nombre_completo + '</h2></body></html>');
             ventanaImpresion.document.close(); ventanaImpresion.print(); ventanaImpresion.close();
         };
 
@@ -702,7 +655,7 @@
 
         document.addEventListener('DOMContentLoaded', () => { 
             verificarAdmin(); 
-            renderizarTablaPagos(registroPagosMemoria); // Render inicial de pagos base
+            renderizarTablaPagos(registroPagosMemoria); 
         });
     </script>
 </body>
