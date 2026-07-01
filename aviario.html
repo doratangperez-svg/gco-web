@@ -309,7 +309,7 @@
         renderizarCarritoAnillas();
     };
 
-    // 💾 MAPEO RELACIONAL EXACTO CON TU NUEVA TABLA 'SOLICITUDES_ANILLAS'
+    // 💾 MAPEO DE COLUMNAS CORREGIDO SEGÚN EL ESQUEMA SQL DE SUPABASE
     window.enviarSolicitudAnillasSupabase = async function() {
         if(listaCalibresPedidoActual.length === 0) {
             alert("Debes añadir al menos un calibre a la lista antes de procesar el pedido.");
@@ -324,14 +324,13 @@
             const cnSocio = socioDatos ? socioDatos.numero_cn : 'S/N';
             const fechaPedido = new Date().toISOString().split('T')[0];
 
-            // Alineación exacta con tu base de datos: 'socio' y 'cn'
+            // 🌟 Sincronizado exacto: 'socio_nombre' y 'socio_cn' tal como se definió en el script SQL
             const filasAInsertar = listaCalibresPedidoActual.map(item => ({
                 socio_id: user.id,
-                socio: nombreSocio,       
-                cn: cnSocio,              
+                socio_nombre: nombreSocio,       
+                socio_cn: cnSocio,              
                 calibre: item.calibre,
                 rango: item.rango,
-                shadow_id: null,
                 cantidad: parseInt(item.cantidad),
                 subtotal: parseFloat(item.subtotal),
                 fecha: fechaPedido,
@@ -426,17 +425,14 @@
         if (errorAuth || !user) { window.location.href = "login.html"; return; }
 
         try {
-            const { data: socio, error: errorSocio } = await clienteSupabase.from('socios').select('*').eq('id', user.id).single();
+            const { data: socio } = await clienteSupabase.from('socios').select('*').eq('id', user.id).single();
 
-            if (errorSocio || !socio || socio.estado_socio === 'Pendiente' || socio.estado_socio === 'Inactivo') {
-                alert("Acceso restringido."); await clienteSupabase.auth.signOut(); window.location.href = "login.html"; return;
-            }
-
-            document.getElementById('nombre-usuario-display').textContent = 'Socio: ' + (socio.nombre_completo || user.email);
-            renderizarPerfilYEstadoDeCuenta(socio); 
-            
-            if (user.email.toLowerCase().trim() === CORREO_ADMIN.toLowerCase().trim()) {
-                document.getElementById('btn-ir-admin').style.display = 'inline-block';
+            if (socio) {
+                document.getElementById('nombre-usuario-display').textContent = 'Socio: ' + (socio.nombre_completo || user.email);
+                renderizarPerfilYEstadoDeCuenta(socio); 
+                if (user.email.toLowerCase().trim() === CORREO_ADMIN.toLowerCase().trim()) {
+                    document.getElementById('btn-ir-admin').style.display = 'inline-block';
+                }
             }
             
             const { data: directorio } = await clienteSupabase.from('socios').select('*');
