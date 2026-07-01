@@ -454,20 +454,31 @@
             }
         };
 
+       // 🔄 MODIFICACIÓN: Forzar a que cargue los socios PRIMERO y luego procese el consolidado
         async function verificarAdmin() {
-            const { data: { user }, error } = await clienteSupabase.auth.getUser();
-            if (error || !user) { window.location.href = "login.html"; return; }
-            if (user.email !== CORREO_ADMINISTRADOR.toLowerCase().trim()) { window.location.href = "aviario.html"; return; }
-            document.getElementById('admin-email').textContent = `Admin: ${user.email}`;
-            cargarTablaSocios();
+            try {
+                const { data: { user }, error } = await clienteSupabase.auth.getUser();
+                if (error || !user) { window.location.href = "login.html"; return; }
+                if (user.email !== CORREO_ADMINISTRADOR.toLowerCase().trim()) { window.location.href = "aviario.html"; return; }
+                document.getElementById('admin-email').textContent = `Admin: ${user.email}`;
+                
+                // 1º Cargamos el padrón de socios a memoria de forma obligatoria
+                await cargarTablaSocios();
+                
+                // 2º Una vez que los socios ya están en memoria, cargamos las anillas para que pinte la matriz
+                await cargarConsolidadoAnillas();
+            } catch (err) {
+                console.error("Error en la verificación inicial:", err.message);
+            }
         }
-
         async function cargarTablaSocios() {
             const tbody = document.getElementById('tabla-admin-socios'); if(!tbody) return;
             try {
                 const { data, error } = await clienteSupabase.from('socios').select('*').order('fecha_ingreso', { ascending: false });
                 if (error) { tbody.innerHTML = '<tr><td>Error: ' + error.message + '</td></tr>'; return; }
-                listaSociosMemoria = data || []; tbody.innerHTML = '';
+                
+                listaSociosMemoria = data || []; // Guardamos inmediatamente en la variable global
+                tbody.innerHTML = '';
                 
                 listaSociosMemoria.forEach((socio, index) => {
                     let claseEstado = 'activo';
@@ -490,6 +501,8 @@
                         </td>
                     </tr>`;
                 });
+                
+                return data; // Retorna los datos para habilitar el await asíncrono
             } catch (err) { tbody.innerHTML = '<tr><td>Error: ' + err.message + '</td></tr>'; }
         }
 
