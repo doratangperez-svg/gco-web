@@ -719,12 +719,13 @@
             }
         }
 
-        // 📊 2. CALCULAR EL RESUMEN DE PRODUCCIÓN (AGRUPACIÓN CORRECTA)
+       // 📊 2. CALCULAR EL RESUMEN DE PRODUCCIÓN (AGRUPACIÓN CORREGIDA POR MAYÚSCULAS)
         function renderizarResumenMatrizPorCalibre(pedidos) {
             const tbodyResumen = document.getElementById('tbody-anillas-totales-calibre');
             if (!tbodyResumen) return;
 
-            const pendientes = pedidos ? pedidos.filter(p => p.estado === 'Pendiente') : [];
+            // 🌟 CORRECCIÓN CRÍTICA: Convertimos a minúsculas para que detecte 'pendiente' o 'Pendiente' por igual
+            const pendientes = pedidos ? pedidos.filter(p => p.estado && p.estado.trim().toLowerCase() === 'pendiente') : [];
 
             if (pendientes.length === 0) {
                 tbodyResumen.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#777; padding:20px;">No hay solicitudes "Pendientes" para agrupar en este lote.</td></tr>';
@@ -794,12 +795,18 @@
             if (!confirm("¿Estás seguro de que deseas aceptar este lote?\n\nEsta acción cambiará el estado de todas las solicitudes 'Pendientes' a 'Consolidado'.")) return;
 
             try {
-                const { error } = await clienteSupabase
+                // 🌟 Buscamos tanto 'Pendiente' como 'pendiente' para actualizar Supabase por completo
+                const { error: error1 } = await clienteSupabase
                     .from('solicitudes_anillas')
                     .update({ estado: 'Consolidado' })
                     .eq('estado', 'Pendiente');
 
-                if (error) throw error;
+                const { error: error2 } = await clienteSupabase
+                    .from('solicitudes_anillas')
+                    .update({ estado: 'Consolidado' })
+                    .eq('estado', 'pendiente');
+
+                if (error1 || error2) throw (error1 || error2);
 
                 alert("¡Éxito! El lote completo ha sido consolidado de forma histórica.");
                 cargarConsolidadoAnillas();
